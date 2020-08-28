@@ -472,11 +472,15 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
+###############################################################################
+# SQL
 def _SQL(QUERY):
     import data_science_tools as dst
     snow_eng = dst.snowflake_prod
     snow_conn = snow_eng.connect()
     data = pd.read_sql(QUERY, con=snow_conn)
+    snow_conn.close()
+    snow_eng.dispose()
     return data
 
 RISK_QUERY = """SELECT id,
@@ -510,6 +514,53 @@ DIRECTION_QUERY = """SELECT    doc_pres.id id,
                      AND doc_pres.self_prescribed = false 
                      AND docs.source = 'Escribe'
                      AND esc.id is NOT NULL"""
+###############################################################################
+
+###############################################################################
+# Send email from SES that the job failed to run
+import boto3
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+
+class EmailClient:
+    def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
+        self.sender = sender
+        self.client = boto3.client('ses',region_name=region)
+
+    def construct_email(self, subject, body):
+        body_html = """
+        <html>
+        <head></head>
+        <body>
+          <h1>{0}</h1>
+          <p>{1}</p>
+        </body>
+        </html>
+        """.format(subject, body)
+        return body_html
+
+    def send_email(self, recipients, subject, body, attachment=None, charset="utf-8"):
+        body_html = self.construct_email(subject, body)
+        msg = MIMEMultipart()
+        msg['Subject'] = subject
+        msg['From'] = self.sender
+        msg['To'] = ', '.join(recipients)
+        # message body
+        part = MIMEText(body_html.encode(charset), 'html', charset)
+        msg.attach(part)
+        if attachment:
+            # attachment
+            part = MIMEApplication(open(attachment, 'rb').read())
+            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes.csv')
+            msg.attach(part)
+        response = self.client.send_raw_email(
+            Source=msg['From'],
+            Destinations=recipients,
+            RawMessage={'Data': msg.as_string()}
+        )
+###############################################################################
+
 ###############################################################################
 def main():
     # Path and Filename
@@ -567,11 +618,21 @@ def main():
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
     results.to_csv(PATH+OUTPUT, index=False)
+    email = EmailClient()
+    email.send_email(['jeff.liu@pillpack.com'],
+       'Direction Changes',
+       'Hey team, <br><br>Attached please find the directon changes for {0}.<br><br>Best, <br>data_science_bot'.format(pd.to_datetime('now').date().isoformat()),
+       PATH+OUTPUT)
     #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
     return results
 
 if __name__ == "__main__":
     results = main()
+
+
+
+
+
 
 
 
