@@ -523,6 +523,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
+EMAIL_LIST = ['jeff.liu@pillpack.com', 'cetinkay@amazon.com']
+
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
         self.sender = sender
@@ -565,17 +567,18 @@ class EmailClient:
 def main():
     # Path and Filename
     PATH = 'Data/'
-    TIME = '08272020'
+    #TIME = '08272020'
+    TIME = pd.to_datetime('now').date().isoformat()
     INPUT_RISK = 'predicted_risk_'+TIME+'.csv'
     INPUT_DIRECTION = 'direction_sigline_'+TIME+'.csv'
     OUTPUT = 'results_'+TIME+'.csv'    
     ### Load Data
     print('******************************')
-    print('Loading Predicated Risk')
+    print('Loading Predicted Risk')
     try:    
         risk = pd.read_csv(PATH+INPUT_RISK) # NDC in string type, some NDCs start with 0's
     except:
-        print('Running SQL to pull directions from Snowflake...') 
+        print('Running SQL to pull predicted risk from Snowflake...') 
         risk = _SQL(RISK_QUERY)
     risk.columns = risk.columns.str.upper()
     print('Loading Directions')
@@ -619,9 +622,9 @@ def main():
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
     results.to_csv(PATH+OUTPUT, index=False)
     email = EmailClient()
-    email.send_email(['jeff.liu@pillpack.com'],
-       'Direction Changes',
-       'Hey team, <br><br>Attached please find the directon changes for {0}.<br><br>Best, <br>data_science_bot'.format(pd.to_datetime('now').date().isoformat()),
+    email.send_email(EMAIL_LIST,
+       'Direction Changes ' + TIME,
+       'Hey team, <br><br>Attached please find the directon changes for {0}.<br><br>Best, <br>data_science_bot'.format(TIME),
        PATH+OUTPUT)
     #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
     return results
