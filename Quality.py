@@ -10,7 +10,7 @@ Quality Projects
 
 import pandas as pd
 #import numpy as np
-import ast # use to split string to list
+#import ast # use to split string to list
 import re # use to precess string
 import spacy
 from spacy.matcher import Matcher
@@ -19,50 +19,51 @@ nlp = spacy.load("en_core_web_sm")
 ###############################################################################
 WORD2CHANGE = {}
 ### Others
-WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]',
+WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
-                    '[(][\s]*1[\s]*[)]', '[(][\s]*2[\s]*[)]', '[(][\s]*3[\s]*[)]', '[(][\s]*4[\s]*[)]', '[(][\s]*5[\s]*[)]', '[(][\s]*6[\s]*[)]', 
-                    '[(][\s]*7[\s]*[)]', '[(][\s]*8[\s]*[)]', '[(][\s]*12[\s]*[)]', '[(][\s]*14[\s]*[)]', '[(][\s]*30[\s]*[)]'] # conver to space
-WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9|\s|.|,|;]+)[)]']
-WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g '] # gr(s), gram(s)
+                    '[()[\s]*[0-9|.|,|/]+[\s]*[)]']
+WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
 WORD2CHANGE[' mg '] = ['[\s]*mg[(]?[s]?[)]? ', '[\s]*milligram[(]?[s]?[)]? '] # mg(s), milligram(s)
 WORD2CHANGE[' mcg '] = ['[\s]*mcg[(]?[s]?[)]? ', '[\s]*microgram[(]?[s]?[)]? '] # mcg(s), microgram(s)
+WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g ', ' gm '] # gr(s), gram(s)
 WORD2CHANGE[' ml '] = ['[\s]*ml[(]?[s]?[)]? ', '[\s]*milliliter[(]?[s]?[)]? '] # ml(s), milliliter(s)
-WORD2CHANGE[' po qhs '] = ['poqhs']
+WORD2CHANGE[' po \\1 '] = ['po(q[a-z]{2})'] # poqam, poqhs
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
+WORD2CHANGE[' as needed ' ] = [' p[.]?r[.]?n[.]? ']
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
 WORD2CHANGE[' every '] = [' each ', ' ea', ' per ']
 WORD2CHANGE[' through '] = [' thur ']
 ### Numbers (order matters!)
-WORD2CHANGE[' \\1\\2 '] = [ ' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*) '] # 1,000 --> 1000
-WORD2CHANGE[' 0\\1 '] = [ ' ([.][0-9]*) '] # .5 --> 0.5
-WORD2CHANGE[' 0.25 '] = [ ' 1/4 ']
-WORD2CHANGE[' 1.5 '] = [ ' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 1/2 ']
-WORD2CHANGE[' 2.5 '] = [ ' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', '2 1/2 ']
-WORD2CHANGE[' 3.5 '] = [ ' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 1/2 ']
-WORD2CHANGE[' 4.5 '] = [ ' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 1/2 ']
-WORD2CHANGE[' 5.5 '] = [ ' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 1/2 ']
-WORD2CHANGE[' 0.5 '] = [ ' one-half ', ' one half ', ' a half ', ' half ', ' 1/2 ']
+WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
+WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
+WORD2CHANGE[' 0.25 '] = [' 1/4 ']
+WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 1/2 ']
+WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', '2 1/2 ']
+WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 1/2 ']
+WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 1/2 ']
+WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 1/2 ']
+WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half ', ' 1/2 ']
+WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*\-[\s]*([0-9]*)']
 WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*\-[\s]*([0-9]+[.]?[0-9]*)']
-WORD2CHANGE[' 1 '] = [ ' one ']
-WORD2CHANGE[' 2 '] = [ ' two ']
-WORD2CHANGE[' 3 '] = [ ' three ']
-WORD2CHANGE[' 4 '] = [ ' four ']
-WORD2CHANGE[' 5 '] = [ ' five ']
-WORD2CHANGE[' 6 '] = [ ' six ']
-WORD2CHANGE[' 7 '] = [ ' seven ']
-WORD2CHANGE[' 8 '] = [ ' eight ']
-WORD2CHANGE[' 9 '] = [ ' nine ']
-WORD2CHANGE[' 10 '] = [ ' ten ']
-WORD2CHANGE[' 12 '] = [ ' twelve ']
-WORD2CHANGE[' 14 '] = [ ' fourteen ']
+WORD2CHANGE[' 1 '] = [' one ']
+WORD2CHANGE[' 2 '] = [' two ']
+WORD2CHANGE[' 3 '] = [' three ']
+WORD2CHANGE[' 4 '] = [' four ']
+WORD2CHANGE[' 5 '] = [' five ']
+WORD2CHANGE[' 6 '] = [' six ']
+WORD2CHANGE[' 7 '] = [' seven ']
+WORD2CHANGE[' 8 '] = [' eight ']
+WORD2CHANGE[' 9 '] = [' nine ']
+WORD2CHANGE[' 10 '] = [' ten ']
+WORD2CHANGE[' 12 '] = [' twelve ']
+WORD2CHANGE[' 14 '] = [' fourteen ']
 ### Medication Units
-WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]?[\s|.|,|;|-]+', ' tb[(]?[s]?[)]?[\s|.|,|;|-]+'] # tablet, tablets, tablet(s), tab, tabs, tab(s)
-WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[\s|.|,|;|-]+'] # capsule, capsules, capsule(s), cap, caps, cap(s) 
+WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+'] # puff, puffs, puff(s)   
 WORD2CHANGE[' pump '] = ['pump[(]?[s]?[)]?[\s|.|,|;|-]+'] # pump, pumps, pump(s)           
@@ -74,8 +75,9 @@ WORD2CHANGE[' syringe '] = ['syringe[(]?[s]?[)]?[\s|.|,|;|-]+'] # syringe(s)
 WORD2CHANGE[' ring '] = ['ring[(]?[s]?[)]?[\s|.|,|;|-]+'] # ring, rings, ring(s)      
 WORD2CHANGE[' patch '] = ['patch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # patch, patches, patch(es)   
 WORD2CHANGE[' packet '] = ['packet[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # packet(s)
-WORD2CHANGE[' unit '] = ['unit[(]?[s]?[)]?[\s|.|,|;|-|:]+', ' u[(]?[s]?[)]?[\s|.|,|;|-]+'] # unit, units, unit(s) 
+WORD2CHANGE[' unit '] = ['unit[(]?[s]?[)]?[\s|.|,|;|-|:]+', ' u[(]?[s]?[)]?[\s|.|,|;|-]+', ' unis '] # unit, units, unit(s) 
 WORD2CHANGE[' vial '] = ['vial[(]?[s]?[)]?[\s|.|,|;|-]+'] # vial(s)
+WORD2CHANGE[' pen '] = ['pen[(]?[s]?[)]?[\s|.|,|;|-]+'] # pen(s)
 WORD2CHANGE[' application '] = ['appliciation[(]?[s]?[)]?[\s|.|,|;|-]+', 'app[l]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # application(s), app(s)              
 ### Time-Related Words
 # Day of Week (DOW)
@@ -87,28 +89,31 @@ WORD2CHANGE[' friday '] = [' [q]?[\s]*fri[\s|.|,|;|-]+', '[q]?[\s]*friday[(]?[s]
 WORD2CHANGE[' saturday '] = [' [q]?[\s]*sat[\s|.|,|;|-]+', '[q]?[\s]*saturday[(]?[s]?[)]?[\s|.|,|;|-]+'] # sat, saturday(s)
 WORD2CHANGE[' sunday '] = [' [q]?[\s]*sun[\s|.|,|;|-]+', '[q]?[\s]*sunday[[(]?[s]?[)]?[\s|.|,|;|-]+'] # sun, sunday(s)
 # Time of Day (TOD)
-WORD2CHANGE[' morning '] = [' every[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' morning[(]?[s]?[)]?[\s|.|,|;|-]+', 
-                            ' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
-                            ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
-                            ' before midday ', ' mornng '] # morning(s), qam
+WORD2CHANGE[' morning '] = [' morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' mornng ']
+WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
+                               ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
+                               ' before midday '] # morning(s), qam
 WORD2CHANGE[' a.m. '] = ['[\s]*a[.]?m[.]?[\s|.|,|;|-]+'] # a.m.
 WORD2CHANGE[' midday '] = [' noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' midday[(]?[s]?[)]?[\s|.|,|;|-]+'] # noon(s), midday(s)
-WORD2CHANGE[' afternoon '] = [' every[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', ' afternnon[(]?[s]?[)]?[\s|.|,|;|-]+', 
-                              ' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*p[.]?m[.]?[\s|.|,|;|-]+', 
-                              ' in[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*p[.]?m[.]?[\s|.|,|;|-]+'
-                              ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s), qpm
+WORD2CHANGE[' afternoon '] = [' afternoon[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' in afternoon '] = [' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*p[.]?m[.]?[\s|.|,|;|-]+', 
+                                 ' in[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*p[.]?m[.]?[\s|.|,|;|-]+'
+                                 ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s), qpm
 WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+'] # p.m.
-WORD2CHANGE[' evening '] = [' every[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' every[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+', ' evening[(]?[s]?[)]?[\s|.|,|;|-]+', 
-                            ' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+',
-                            ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' nightly[\s|.|,|;|-]+', ' nighttime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+',
-                            ' nighlty '] # night(s), nightly, nighttime
+WORD2CHANGE[' evening '] = [' evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' nighttime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+']
+WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+',
+                               ' nightly[\s|.|,|;|-]+', ' nighlty '] # night(s), nightly, nighttime
 # Special Time of Day
 WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+'] # breakfast(s)
+WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]+breakfast ', ' acbkfst ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
+WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
-WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' [a|t]*bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+',
-                            ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+'] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
+WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' at bedtime '] = [' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
+WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = ['once']
 WORD2CHANGE[' 2 times '] = ['twice']
@@ -153,11 +158,11 @@ TOD_LIST = ['morning','a.m.','breakfast',
             'afternoon','p.m.',
             'evening', 'dinner','bedtime'] # time of day
 UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'strip', 'scoop', 
-             'ring', 'patch', 'packet', 'unit', 'application', 'syringe', 'vial',
+             'ring', 'patch', 'packet', 'unit', 'application', 'syringe', 'vial', 'pen',
              'gr', 'mg', 'mcg', 'ml']
-PERI_LIST = ['breakfast','lunch','dinner','meal',
-             'bedtime',
-             'need','necessary','direct']
+PERI_LIST = ['breakfast','lunch','dinner','meal','food',
+             'bedtime']
+             #'need','necessary','direct']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -237,7 +242,8 @@ dp['208'] = NUM + EVERY + DOW # 1 every monday
 dp['209'] = NUM + AT + DOW # 1 on monday
 dp['210'] = NUM + EVERY + TOD # 1 every morning
 dp['211'] = NUM + AT + [{'LOWER':'the','OP':'?'}] + TOD # 1 in morning
-dp['212'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
+dp['212'] = NUM + EVERY + TOD # 1 every morning
+dp['213'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
 # Add Patterns
 for i in dp:
     dose_matcher.add('DOSE', None, dp[i])
@@ -266,8 +272,8 @@ for i in pp:
 # Reword Text, Convert to Lower Case, and Remove White Spaces
 def _REWORD(text):
     text = str(text).lower()
+    text = text.strip() # remove whitespaces from the beginning and end of text
     if len(text) > 0:
-        text = text.strip() # remove whitespaces from the beginning and end of text
         while text[-1] == '.':
             text = text[:-1] # remove period at the end
             if len(text) == 0:
@@ -379,14 +385,16 @@ def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
             a = re.findall('[0-9]+[.]?[0-9]*', d) # dose in tablet/capsule
             if len(a) > 0:       
                 count = 1
-                if ' to ' in d and len(a) > 1:
+                if (' to ' in d or ' or ' in d) and len(a) > 1:
                     count = 2
                 for j in range(count):
                     if float(a[j]).is_integer():
                         a[j] = int(float(a[j]))
+                    else:
+                        a[j] = float(a[j])
                     info.add(a[j])
     if len(info) == 0: # if no table informaiton is found, then use strength information
-        INDEX = MEDICATIONS.loc[MEDICATIONS.NDC==ROW['NDC']].index
+        INDEX = MEDICATIONS.loc[MEDICATIONS.MEDICATION_DESCRIPTION==ROW['MEDICATION_DESCRIPTION']].index
         if len(INDEX) == 1:
             STRENGTH = MEDICATIONS.loc[INDEX[0],'STRENGTH']
             if len(STRENGTH) > 0:
@@ -396,11 +404,12 @@ def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
                         ('mcg' in s and 'mcg' in d) or ('ml' in s and 'ml' in d) or ('unit' in s and 'unit' in d):
                             a = re.findall('[0-9]+[.]?[0-9]*',d) # dose in gr/mg/mcg/ml
                             b = re.findall('[0-9]+[.]?[0-9]*',s) # strength in gr/mg/mcg/ml
-                        if len(a) == 1 and len(b) == 1:
-                            c = float(a[0])/float(b[0]) # count
-                            if c.is_integer():
-                                c = int(c) # convert float to integer
-                            info.add(c)
+                        if len(a) > 0 and len(b) == 1:
+                            for i in range(len(a)):            
+                                c = float(a[i])/float(b[0]) # count
+                                if c.is_integer():
+                                    c = int(c) # convert float to integer
+                                info.add(c)
     return info
 ###############################################################################    
 
@@ -411,9 +420,11 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
     info = set()
     for p in PERI:
         find = False
-        for i in ['at','as']:
+        for i in ['at','as','with']:
             for j in PERI_LIST:
                 if i + ' ' + j == p:
+                    if j == 'food':
+                        j = 'meal'
                     info.add(j)
                     find = True
                     break
@@ -457,7 +468,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print(TYPE+' Change Detection Ends')
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
-    return DATA[['ID','PRESCRIPTION_ID','SIG_ID','LINE_NUMBER','SIG_TEXT','DIRECTIONS','NDC','TOTAL_LINE_COUNT',\
+    return DATA[['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
@@ -468,16 +479,18 @@ def _SQL(QUERY):
     data = pd.read_sql(QUERY, con=snow_conn)
     return data
 
-MEDICATION_QUERY = """SELECT ndc, 
-                      description,
-                      gsdd_desc
-                      FROM SOURCE_PILLPACK_CORE.medications"""
-DIRECTION_QUERY = """SELECT  doc_pres.id id, 
+RISK_QUERY = """SELECT id,
+                prescription_id,
+                medication_description,
+                predicted_risk
+                FROM analytics_core.drug_dir_pv1_rx_risk
+                WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'"""
+DIRECTION_QUERY = """SELECT    doc_pres.id id,
                      sig.prescription_id, 
-                     sig.id AS sig_id, 
+                     sig.id sig_id, 
                      sig.line_number, 
                      sig.text sig_text, 
-                     esc.directions, 
+                     esc.directions directions, 
                      esc.ndc, 
                      sig.quantity_per_dose, 
                      sig.units, 
@@ -485,14 +498,14 @@ DIRECTION_QUERY = """SELECT  doc_pres.id id,
                      sig.quantity_per_day, 
                      sig.schedule_type, 
                      sig.period, 
-                     sig.dow 
+                     sig.dow,
+                     doc_pres.med_name medication_description
                      FROM source_pillpack_core.docupack_prescriptions doc_pres 
                      LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id 
                      LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id 
                      LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id 
                      LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
                      WHERE docs.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' 
-                     AND sig.line_number = 1
                      AND pres.rx_number IS NOT NULL 
                      AND doc_pres.self_prescribed = false 
                      AND docs.source = 'Escribe'
@@ -501,35 +514,35 @@ DIRECTION_QUERY = """SELECT  doc_pres.id id,
 def main():
     # Path and Filename
     PATH = 'Data/'
-    #SIZE = '10K'
-    TIME = '08252020'
-    INPUT = 'direction_sigline_'+TIME+'.csv'
+    TIME = '08272020'
+    INPUT_RISK = 'predicted_risk_'+TIME+'.csv'
+    INPUT_DIRECTION = 'direction_sigline_'+TIME+'.csv'
     OUTPUT = 'results_'+TIME+'.csv'    
-    ### Load Medication
-    try:
-        medications = pd.read_csv(PATH+'medications_new.csv', dtype={'ndc':str}) # NDC in string type, some NDCs start with 0's
-    except:
-        print('Running SQL to pull medications from Snowflake...')
-        medications = _SQL(MEDICATION_QUERY)        
-    medications.columns = medications.columns.str.upper()
-    def _DESC(ROW):
-        return str(ROW['DESCRIPTION']) + ' ' + str(ROW['GSDD_DESC']) # combine two columns related to drug descriptions
-    if 'STRENGTH' in medications.columns:
-        medications.loc[medications.STRENGTH=='set()','STRENGTH'] = "{}"
-        medications['STRENGTH'] = medications['STRENGTH'].apply(ast.literal_eval)
-    else:
-        medications['DRUG_DESCRIPTION'] = medications.apply(_DESC, axis=1)
-        medications['DRUG_DESCRIPTION'] = medications['DRUG_DESCRIPTION'].apply(_REWORD)
-        medications['STRENGTH'] = medications['DRUG_DESCRIPTION'].apply(_EXTRACT, matcher=dose_matcher)
-    ### Load Dairections
+    ### Load Data
+    print('******************************')
+    print('Loading Predicated Risk')
     try:    
-        data = pd.read_csv(PATH+INPUT, dtype={'ndc':str}) # NDC in string type, some NDCs start with 0's
+        risk = pd.read_csv(PATH+INPUT_RISK) # NDC in string type, some NDCs start with 0's
+    except:
+        print('Running SQL to pull directions from Snowflake...') 
+        risk = _SQL(RISK_QUERY)
+    risk.columns = risk.columns.str.upper()
+    print('Loading Directions')
+    try:    
+        data = pd.read_csv(PATH+INPUT_DIRECTION) # NDC in string type, some NDCs start with 0's
     except:
         print('Running SQL to pull directions from Snowflake...') 
         data = _SQL(DIRECTION_QUERY)                         
     data.columns = data.columns.str.upper()
     data = data.drop_duplicates()  # remove duplicated records   
-    data['TOTAL_LINE_COUNT'] = data.groupby('PRESCRIPTION_ID')['LINE_NUMBER'].transform('count') # total sigline count
+    data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
+    # Extract Medication Strength Information
+    print('******************************')
+    print('Extracing Medication Strength Infromation')
+    medications = data[['MEDICATION_DESCRIPTION']].fillna('') ### Some NDC is incorrect!!! 'supply!!!'
+    medications = medications.drop_duplicates()
+    medications['NEW_MEDICATION_DESCRIPTION'] = medications['MEDICATION_DESCRIPTION'].apply(_REWORD)
+    medications['STRENGTH'] = medications['NEW_MEDICATION_DESCRIPTION'].apply(_EXTRACT, matcher=dose_matcher)
     ### Step 0. Convert Original Directions and Sigline Texts and Extract Strength Inforamtion
     print('******************************')
     print('Step 0. Converting to Standard Format')
@@ -544,15 +557,17 @@ def main():
     print('Detect ' + str(len(data)) + ' Direction Changes')    
     ### Step 2 and 3. Direction Change Detection
     results = pd.DataFrame()
-    for TYPE in ['DOSE','FREQ','PERI']:
+    for TYPE in ['DOSE','FREQ','PERI']: 
         result = _DETECTION(data.loc[:], TYPE, medications).copy()
         if len(results) == 0:
             results =  result.copy()
         else:
-            results = results.merge(result, on=['ID','PRESCRIPTION_ID','SIG_ID','LINE_NUMBER','SIG_TEXT','DIRECTIONS','NDC','TOTAL_LINE_COUNT'], how='outer')
+            results = results.merge(result, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
     ### Save and Return
-    results = results.merge(medications, on=['NDC'], how='left')
-    results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE']].to_csv(PATH+OUTPUT, index=False)
+    results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
+    results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
+    results.to_csv(PATH+OUTPUT, index=False)
+    #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
     return results
 
 if __name__ == "__main__":
@@ -560,6 +575,26 @@ if __name__ == "__main__":
 
 
 
+
+
+#    ### Load Medication
+#    try:
+#        medications = pd.read_csv(PATH+'medications_new.csv', dtype={'ndc':str}) # NDC in string type, some NDCs start with 0's
+#    except:
+#        print('Running SQL to pull medications from Snowflake...')
+#        medications = _SQL(MEDICATION_QUERY)        
+#    medications.columns = medications.columns.str.upper()
+#    medications = medications.fillna('')
+##    medications = medications.groupby('NDC').max().reset_index()
+#    def _DESC(ROW):
+#        return str(ROW['DESCRIPTION']) + ' ' + str(ROW['GSDD_DESC']) # combine two columns related to drug descriptions
+#    if 'STRENGTH' in medications.columns:
+#        medications.loc[medications.STRENGTH=='set()','STRENGTH'] = "{}"
+#        medications['STRENGTH'] = medications['STRENGTH'].apply(ast.literal_eval)
+#    else:
+#        medications['DRUG_DESCRIPTION'] = medications.apply(_DESC, axis=1)
+#        medications['DRUG_DESCRIPTION'] = medications['DRUG_DESCRIPTION'].apply(_REWORD)
+#        medications['STRENGTH'] = medications['DRUG_DESCRIPTION'].apply(_EXTRACT, matcher=dose_matcher)
 
 ###############################################################################
 ## Dose Change Detection
