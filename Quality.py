@@ -8,6 +8,7 @@ Quality Projects
 @author: liujianf
 """
 
+import os
 import pandas as pd
 #import numpy as np
 #import ast # use to split string to list
@@ -19,7 +20,7 @@ nlp = spacy.load("en_core_web_sm")
 ###############################################################################
 WORD2CHANGE = {}
 ### Others
-WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]',
+WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-]?half[\s]*[)]'
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
@@ -41,11 +42,11 @@ WORD2CHANGE[' through '] = [' thur ']
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
 WORD2CHANGE[' 0.25 '] = [' 1/4 ']
-WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 1/2 ']
-WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', '2 1/2 ']
-WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 1/2 ']
-WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 1/2 ']
-WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 1/2 ']
+WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ']
+WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2 & 1/2 ', '2 1/2 ']
+WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
+WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
+WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
 WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half ', ' 1/2 ']
 WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*\-[\s]*([0-9]*)']
 WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*\-[\s]*([0-9]+[.]?[0-9]*)']
@@ -440,10 +441,10 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     if TYPE == 'DOSE':
         MATCHER = dose_matcher
         MODIFY = _MODIFY_DOSE
-    elif TYPE == 'FREQ':
+    elif TYPE == 'FREQUENCY':
         MATCHER = freq_matcher
         MODIFY = _MODIFY_FREQ
-    elif TYPE == 'PERI':
+    elif TYPE == 'PERIPHERAL':
         MATCHER = peri_matcher
         MODIFY = _MODIFY_PERI
     else:
@@ -468,7 +469,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print(TYPE+' Change Detection Ends')
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
-    return DATA[['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
+    return DATA[['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
@@ -494,7 +495,7 @@ DIRECTION_QUERY = """SELECT    doc_pres.id id,
                      sig.id sig_id, 
                      sig.line_number, 
                      sig.text sig_text, 
-                     esc.directions directions, 
+                     esc.directions escribe_directions, 
                      esc.ndc, 
                      sig.quantity_per_dose, 
                      sig.units, 
@@ -523,7 +524,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com', 'cetinkay@amazon.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com']#, 'cetinkay@amazon.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
@@ -554,7 +555,7 @@ class EmailClient:
         if attachment:
             # attachment
             part = MIMEApplication(open(attachment, 'rb').read())
-            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes.csv')
+            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes_'+pd.to_datetime('now').date().isoformat()+'.csv')
             msg.attach(part)
         response = self.client.send_raw_email(
             Source=msg['From'],
@@ -566,7 +567,7 @@ class EmailClient:
 ###############################################################################
 def main():
     # Path and Filename
-    PATH = 'Data/'
+    PATH = os.path.abspath(os.getcwd())+'/Data/'
     #TIME = '08272020'
     TIME = pd.to_datetime('now').date().isoformat()
     INPUT_RISK = 'predicted_risk_'+TIME+'.csv'
@@ -601,7 +602,7 @@ def main():
     print('******************************')
     print('Step 0. Converting to Standard Format')
     # Convert Escribe Directions and Sigline Texts
-    data['NEW_DIRECTIONS'] = data['DIRECTIONS'].apply(_REWORD)
+    data['NEW_DIRECTIONS'] = data['ESCRIBE_DIRECTIONS'].apply(_REWORD)
     data['NEW_SIG_TEXT'] = data['SIG_TEXT'].apply(_REWORD)
     ### Step 1. Compare New Direcitons and Sigline Text
     print('******************************')
@@ -616,7 +617,7 @@ def main():
         if len(results) == 0:
             results =  result.copy()
         else:
-            results = results.merge(result, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
+            results = results.merge(result, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
@@ -624,7 +625,18 @@ def main():
     email = EmailClient()
     email.send_email(EMAIL_LIST,
        'Direction Changes ' + TIME,
-       'Hey team, <br><br>Attached please find the directon changes for {0}.<br><br>Best, <br>data_science_bot'.format(TIME),
+       'Hey team, <br><br>\
+       Attached please find the directon changes on {0}. If you have any question please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+       Columns: <br> \
+       ID: docupack_prescriptions.id <br> \
+       PRESCRIPTION_ID <br> \
+       MEDICATION_DESCRIPTION <br> \
+       ESCRIBE_DIRECTIONS <br> \
+       SIG_TEXT <br> \
+       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
+       DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
+       PERIPHERAL_CHANGE: if Ture, there are changes <br><br>\
+       Best, <br>data_science_bot'.format(TIME),
        PATH+OUTPUT)
     #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
     return results
