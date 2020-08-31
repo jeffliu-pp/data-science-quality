@@ -67,7 +67,7 @@ WORD2CHANGE[' 14 '] = [' fourteen ']
 WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
-WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler(]?[s]?[)]? '] # puff, puffs, puff(s)   
+WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? '] # puff, puffs, puff(s)   
 WORD2CHANGE[' pump '] = ['pump[(]?[s]?[)]?[\s|.|,|;|-]+'] # pump, pumps, pump(s)           
 WORD2CHANGE[' drop '] = ['drop[(]?[s]?[)]?[\s|.|,|;|-]+'] # drop, drops, drop(s)    
 WORD2CHANGE[' spray '] = ['spray[(]?[s]?[)]?[\s|.|,|;|-]+', 'spr[(]?[s]?[)]?[\s|.|,|;|-]+'] # spray, sparys, spray(s)   
@@ -276,7 +276,7 @@ def _REWORD(text, remove_bracket=False):
     text = str(text).lower()
     text = text.strip() # remove whitespaces from the beginning and end of text
     if remove_bracket:
-        text = re.sub('[(][0-9|a-z|,|.|\s]*[)]', ' ', text) # remove anything in a bracket
+        text = re.sub('[(][0-9a-z|,|.|\s]*[)]', ' ', text) # remove anything in a bracket
     if len(text) > 0:
         while text[-1] == '.':
             text = text[:-1] # remove period at the end
