@@ -24,8 +24,9 @@ WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
-                    '[()[\s]*[0-9|.|,|/]+[\s]*[)]']
+                    '[()[\s]*[0-9|.|,|/]+[\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
+WORD2CHANGE[' mg / \\1 '] = [' mg/([0-9|.]+) ']
 WORD2CHANGE[' mg '] = ['[\s]*mg[(]?[s]?[)]? ', '[\s]*milligram[(]?[s]?[)]? '] # mg(s), milligram(s)
 WORD2CHANGE[' mcg '] = ['[\s]*mcg[(]?[s]?[)]? ', '[\s]*microgram[(]?[s]?[)]? '] # mcg(s), microgram(s)
 WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g ', ' gm '] # gr(s), gram(s)
@@ -285,7 +286,7 @@ def _REWORD(text):
     for k in WORD2CHANGE: # change words
         for i in WORD2CHANGE[k]: 
             text = re.sub(i,k,text)
-    return " " + " ".join(text.split()) # split words into a list of words, add space in the beginning 
+    return " " + " ".join(text.split()) # split words into a list of words, add space in the beginning (this is useful when a sentence beginning with a number, we want to ensure the number is detected as POS: 'NUM')
 ###############################################################################
 
 ###############################################################################
