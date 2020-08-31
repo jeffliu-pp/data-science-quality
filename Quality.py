@@ -512,6 +512,7 @@ DIRECTION_QUERY = """SELECT    doc_pres.id id,
                      LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id 
                      LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
                      WHERE docs.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' 
+                     AND doc_pres.id = '5f4ce7d836843810311d1619'
                      AND pres.rx_number IS NOT NULL 
                      AND doc_pres.self_prescribed = false 
                      AND docs.source = 'Escribe'
@@ -613,7 +614,7 @@ def main():
     print('Detect ' + str(len(data)) + ' Direction Changes')    
     ### Step 2 and 3. Direction Change Detection
     results = pd.DataFrame()
-    for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
+    for TYPE in ['DOSE']: #,'FREQUENCY','PERIPHERAL']: 
         result = _DETECTION(data.loc[:], TYPE, medications).copy()
         if len(results) == 0:
             results =  result.copy()
