@@ -285,7 +285,7 @@ def _REWORD(text):
     for k in WORD2CHANGE: # change words
         for i in WORD2CHANGE[k]: 
             text = re.sub(i,k,text)
-    return " ".join(text.split()) # split words into a list of words
+    return " " + " ".join(text.split()) # split words into a list of words, add space in the beginning 
 ###############################################################################
 
 ###############################################################################
