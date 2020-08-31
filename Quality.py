@@ -26,7 +26,7 @@ WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
                     '[()[\s]*[0-9|.|,|/]+[\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
-WORD2CHANGE[' mg / \\1 '] = [' mg/([0-9|.]+) ']
+WORD2CHANGE[' mg / '] = [' mg/']
 WORD2CHANGE[' mg '] = ['[\s]*mg[(]?[s]?[)]? ', '[\s]*milligram[(]?[s]?[)]? '] # mg(s), milligram(s)
 WORD2CHANGE[' mcg '] = ['[\s]*mcg[(]?[s]?[)]? ', '[\s]*microgram[(]?[s]?[)]? '] # mcg(s), microgram(s)
 WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g ', ' gm '] # gr(s), gram(s)
@@ -236,16 +236,15 @@ dp['104'] = NUM + [{'LOWER':'and'}] + NUM + UNIT # 1 and 0.5 tablet
 dp['201'] = NUM + [{'LOWER':'by'},{'LOWER':'mouth'}] # 2 by mouth
 dp['202'] = NUM + TO + dp['201'] # 1 to 2 by mouth
 dp['203'] = NUM + EVERY + NUM + TIME # 2 every 12 hour
-dp['204'] = NUM + TIMELY # 1 daily
-dp['205'] = NUM + EVERY + TIMELY # 1 every daily
-dp['206'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + TIME # 1 every other day
-dp['207'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + DOW # 1 every other monday
-dp['208'] = NUM + EVERY + DOW # 1 every monday
-dp['209'] = NUM + AT + DOW # 1 on monday
+#dp['204'] = NUM + TIMELY # 1 daily
+#dp['205'] = NUM + EVERY + TIMELY # 1 every daily
+#dp['206'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + TIME # 1 every other day
+#dp['207'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + DOW # 1 every other monday
+#dp['208'] = NUM + EVERY + DOW # 1 every monday
+#dp['209'] = NUM + AT + DOW # 1 on monday
 dp['210'] = NUM + EVERY + TOD # 1 every morning
 dp['211'] = NUM + AT + [{'LOWER':'the','OP':'?'}] + TOD # 1 in morning
-dp['212'] = NUM + EVERY + TOD # 1 every morning
-dp['213'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
+dp['212'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
 # Add Patterns
 for i in dp:
     dose_matcher.add('DOSE', None, dp[i])
