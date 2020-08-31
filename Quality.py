@@ -20,7 +20,7 @@ nlp = spacy.load("en_core_web_sm")
 ###############################################################################
 WORD2CHANGE = {}
 ### Others
-WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-]?half[\s]*[)]'
+WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
@@ -462,7 +462,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     DATA['NEW_'+TYPE+'_DIRECTIONS'] = DATA.apply(MODIFY, axis=1, NAME=TYPE+'_DIRECTIONS', MEDICATIONS=MEDICATIONS)
     DATA['NEW_'+TYPE+'_SIG_TEXT'] = DATA.apply(MODIFY, axis=1, NAME=TYPE+'_SIG_TEXT', MEDICATIONS=MEDICATIONS)
     DATA[TYPE+'_CHANGE'] = (DATA['NEW_'+TYPE+'_DIRECTIONS'] != DATA['NEW_'+TYPE+'_SIG_TEXT'])
-    if TYPE != 'PERI':
+    if TYPE != 'PERIPHERAL':
         DATA = DATA.loc[(DATA[TYPE+'_CHANGE']==True)|(DATA['NEW_'+TYPE+'_DIRECTIONS']==set())].copy()
     else:
         DATA = DATA.loc[DATA[TYPE+'_CHANGE']==True].copy()
@@ -612,7 +612,7 @@ def main():
     print('Detect ' + str(len(data)) + ' Direction Changes')    
     ### Step 2 and 3. Direction Change Detection
     results = pd.DataFrame()
-    for TYPE in ['DOSE','FREQ','PERI']: 
+    for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
         result = _DETECTION(data.loc[:], TYPE, medications).copy()
         if len(results) == 0:
             results =  result.copy()
@@ -627,12 +627,14 @@ def main():
        'Direction Changes ' + TIME,
        'Hey team, <br><br>\
        Attached please find the directon changes on {0}. If you have any question please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
-       Columns: <br> \
-       ID: docupack_prescriptions.id <br> \
+       Key Columns: <br> \
+       ID: docupack prescriptions id <br> \
        PRESCRIPTION_ID <br> \
        MEDICATION_DESCRIPTION <br> \
        ESCRIBE_DIRECTIONS <br> \
        SIG_TEXT <br> \
+       LINE_NUMBER: sigline number <br> \
+       TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
        FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
        DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
        PERIPHERAL_CHANGE: if Ture, there are changes <br><br>\
