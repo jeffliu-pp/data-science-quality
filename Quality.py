@@ -527,7 +527,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com']#, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'livia@pillpack.com', 'dane@pillpack.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', \
+              #'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
@@ -624,6 +625,7 @@ def main():
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
+    results = results.sort_values(by=['PREDICTED_RISK'], ascending=False, na_position='first') # sort by predicated risk from higher to lower and put NAs first
     results.to_csv(PATH+OUTPUT, index=False)
     email = EmailClient()
     email.send_email(EMAIL_LIST,
