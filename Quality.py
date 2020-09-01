@@ -640,7 +640,7 @@ def main():
        TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
        FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
        DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
-       PERIPHERAL_CHANGE: if Ture, there are changes \
+       PERIPHERAL_CHANGE: if Ture, there are changes <br> \
        PREDICTED_RISK: risk of direction changes from ML model, high value means high risk <br><br>\
        Best, <br>data_science_bot'.format(TIME),
        PATH+OUTPUT)
