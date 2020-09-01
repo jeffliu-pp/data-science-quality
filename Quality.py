@@ -472,7 +472,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
     return DATA[['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
-                 'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
+                 #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
@@ -527,7 +527,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com']#, 'cetinkay@amazon.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com']#, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'livia@pillpack.com', 'dane@pillpack.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
