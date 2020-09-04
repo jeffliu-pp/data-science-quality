@@ -20,25 +20,31 @@ nlp = spacy.load("en_core_web_sm")
 ###############################################################################
 WORD2CHANGE = {}
 ### Others
-WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-]?half[\s]*[)]',
+WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', 
+                    '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
+                    '[(][\s]*two[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*three[\s]+and[\s]+one[-|\s]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
                     '[()[\s]*[0-9|.|,|/]+[\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
+WORD2CHANGE[' \\1 times '] = [' ([0-9]+)times ']
 WORD2CHANGE[' mg / '] = [' mg/']
 WORD2CHANGE[' mg '] = ['[\s]*mg[(]?[s]?[)]? ', '[\s]*milligram[(]?[s]?[)]? '] # mg(s), milligram(s)
+WORD2CHANGE[' mcg / '] = [' mcg/']
 WORD2CHANGE[' mcg '] = ['[\s]*mcg[(]?[s]?[)]? ', '[\s]*microgram[(]?[s]?[)]? '] # mcg(s), microgram(s)
 WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g ', ' gm '] # gr(s), gram(s)
 WORD2CHANGE[' ml '] = ['[\s]*ml[(]?[s]?[)]? ', '[\s]*milliliter[(]?[s]?[)]? '] # ml(s), milliliter(s)
-WORD2CHANGE[' po \\1 '] = ['po(q[a-z]{2})'] # poqam, poqhs
+WORD2CHANGE[' po \\1 '] = ['po(q[a-z]{2})', 'po(q[d|w]{1})'] # poqam, poqhs, poqd, poqw
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
 WORD2CHANGE[' as needed ' ] = [' p[.]?r[.]?n[.]? ']
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
+WORD2CHANGE[' before '] = [' prior to ']
 WORD2CHANGE[' every '] = [' each ', ' ea', ' per ']
 WORD2CHANGE[' through '] = [' thur ']
+WORD2CHANGE[' \\1 to \\2 '] = ['([0-9|/|.]+) or ([0-9|/|.]+)']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
@@ -63,6 +69,7 @@ WORD2CHANGE[' 9 '] = [' nine ']
 WORD2CHANGE[' 10 '] = [' ten ']
 WORD2CHANGE[' 12 '] = [' twelve ']
 WORD2CHANGE[' 14 '] = [' fourteen ']
+WORD2CHANGE[' 30 '] = [' thirty ']
 ### Medication Units
 WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
@@ -105,23 +112,24 @@ WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+'] # p.m.
 WORD2CHANGE[' evening '] = [' evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' nighttime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+']
 WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+',
                                ' nightly[\s|.|,|;|-]+', ' nighlty '] # night(s), nightly, nighttime
+WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]?[.]?m[.]?)?[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
 WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+'] # breakfast(s)
-WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]+breakfast ', ' acbkfst ']
+WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' acbkfst ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' at bedtime '] = [' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = ['once']
 WORD2CHANGE[' 2 times '] = ['twice']
-WORD2CHANGE[' 2 times daily '] = ['[\s|\(]?b[.]?i[.]?d[.]?[\s|,|;|-|\)]+']
-WORD2CHANGE[' 3 times daily '] = ['[\s|\(]?t[.]?i[.]?d[.]?[\s|,|;|-|\)]+']
-WORD2CHANGE[' 4 times daily '] = ['[\s|\(]?q[.]?i[.]?d[.]?[\s|,|;|-|\)]+']
+WORD2CHANGE[' 2 times daily '] = ['[\s|\(]?b[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
+WORD2CHANGE[' 3 times daily '] = ['[\s|\(]?t[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
+WORD2CHANGE[' 4 times daily '] = ['[\s|\(]?q[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)[\s]*x' ]
 WORD2CHANGE[' hour '] = ['hour[.|,|;|-]+', 'hr[\s|.|,|;|-]+', 'hrs[\s|.|,|;|-]+', 'hurs[\s|.|,|;|-]+']
 WORD2CHANGE['day '] = ['day[.|,|;|-]+']
@@ -136,11 +144,12 @@ WORD2CHANGE[' daily '] = [' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s
                           ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+',
                           '/[\s]*day ', '/[\s]*d ', ' d ',                           
                           ' dailly ', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild '] # typos
-WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q2day(s)    
+WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|\-]+'] # q2day(s)
+WORD2CHANGE[' every other day '] = [' [.]?q[.]?[\s]*other[\s]*day[\s|.|,|;|\-]+'] # qotherday   
 WORD2CHANGE[' weekly '] = [' [o|n|c|e]*[\s]*a[\s]*week ', ' [o|n|c|e]*[\s]*each[\s]*week ', ' [o|n|c|e]*[\s]*every[\s]*week ', ' [o|n|c|e]*[\s]*per[\s]*week ', 
                            ' once[\s]+weekly ', ' 1 time[\s]+weekly ', ' once[\s]week ', ' 1 time[\s]+week ', 
                            ' q[.]?[\s]*week[\s|.|,|;|-]+', ' q[.]?[\s]*w[.]?[\s|,|;|-]+', ' q[.]?[\s]*wk[l|y]*[.|\s|,|;|-]+',
-                           '/[\s]*week ', '/[\s]*wk ', '/[\s]*w ', ' w ']
+                           '/[\s]*week ', '/[\s]*wk ', '/[\s]*w ', ' w ', ' wkly ']
 WORD2CHANGE[' every \\1 weeks '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*w[e]*[k]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q2week(s) 
 WORD2CHANGE[' monthly '] = [' [o|n|c|e]*[\s]*a[\s]*month ', ' [o|n|c|e]*[\s]*each[\s]*month ', ' [o|n|c|e]*[\s]*every[\s]*month ', ' [o|n|c|e]*[\s]*pre[\s]*month ', 
                             ' once[\s]+monthly ', ' 1 time[\s]+monthly ', ' once[\s]*month ',  '1 time[\s]+month ', 
@@ -236,15 +245,25 @@ dp['104'] = NUM + [{'LOWER':'and'}] + NUM + UNIT # 1 and 0.5 tablet
 dp['201'] = NUM + [{'LOWER':'by'},{'LOWER':'mouth'}] # 2 by mouth
 dp['202'] = NUM + TO + dp['201'] # 1 to 2 by mouth
 dp['203'] = NUM + EVERY + NUM + TIME # 2 every 12 hour
+dp['203'] = NUM + TO + dp['203'] # 1 to 2 every 12 hour
 dp['204'] = NUM + TIMELY # 1 daily
+dp['304'] = NUM + TO + dp['204'] # 1 to 2 daily
 dp['205'] = NUM + EVERY + TIMELY # 1 every daily
+dp['305'] = NUM + TO + dp['205'] # 1 to 2 every daily
 dp['206'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + TIME # 1 every other day
+dp['306'] = NUM + TO + dp['206'] # 1 to 2 every other day
 dp['207'] = NUM + EVERY + [{'LEMMA':'other','OP':'?'}] + DOW # 1 every other monday
+dp['307'] = NUM + TO + dp['207'] # 1 to 2 every other monday
 dp['208'] = NUM + EVERY + DOW # 1 every monday
+dp['308'] = NUM + TO + dp['208'] # 1 to 2 every monday
 dp['209'] = NUM + AT + DOW # 1 on monday
+dp['309'] = NUM + TO + dp['209'] # 1 to 2 on monday
 dp['210'] = NUM + EVERY + TOD # 1 every morning
+dp['310'] = NUM + TO + dp['210'] # 1 to 2 every morning
 dp['211'] = NUM + AT + [{'LOWER':'the','OP':'?'}] + TOD # 1 in morning
+dp['311'] = NUM + TO + dp['211'] # 1 to 2 in morning
 dp['212'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
+dp['312'] = NUM + TO + dp['212'] # 1 to 2 2 times
 # Add Patterns
 for i in dp:
     dose_matcher.add('DOSE', None, dp[i])
@@ -323,6 +342,7 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
     evening = 0
     daily = 0
     dow = {}
+    info = set()
     for d in DOW_LIST:
         dow[d] = 0
     weekly = 0
@@ -359,7 +379,9 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
                   'every week', 'every 1 week','everyweek', 'each week', 'week', 'weeks', 'weekly']:
             if t in f:
                 weekly = max(1, weekly)
-    info = set()
+        for t in ['every 14 days', 'every 2 weeks', 'every other week']:
+            if t in f:
+                info.add('every 2 weeks')                              
     daily = max(daily, morning + noon + afternoon + evening)
     if daily == 1:
         info.add('1 time daily')
@@ -471,7 +493,8 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print(TYPE+' Change Detection Ends')
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
-    return DATA[['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
+    return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
+                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
                  #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
@@ -488,34 +511,37 @@ def _SQL(QUERY):
     return data
 
 RISK_QUERY = """SELECT id,
-                prescription_id,
-                medication_description,
-                predicted_risk
+                       prescription_id,
+                       medication_description,
+                       predicted_risk
                 FROM analytics_core.drug_dir_pv1_rx_risk
                 WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'"""
-DIRECTION_QUERY = """SELECT    doc_pres.id id,
-                     sig.prescription_id, 
-                     sig.id sig_id, 
-                     sig.line_number, 
-                     sig.text sig_text, 
-                     esc.directions escribe_directions, 
-                     esc.ndc, 
-                     sig.quantity_per_dose, 
-                     sig.units, 
-                     sig.hoa_times, 
-                     sig.quantity_per_day, 
-                     sig.schedule_type, 
-                     sig.period, 
-                     sig.dow,
-                     doc_pres.med_name medication_description
-                     FROM source_pillpack_core.docupack_prescriptions doc_pres 
-                     LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id 
-                     LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id 
-                     LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id 
+DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admins/sign_in#/' || docs.id) docupack_url,
+                              docs.queue current_queue,
+                              doc_pres.id id,
+                              sig.prescription_id,
+                              sig.id sig_id,
+                              sig.line_number,
+                              sig.text sig_text,
+                              esc.directions directions,  
+                              esc.ndc,
+                              sig.quantity_per_dose,
+                              sig.units,
+                              sig.hoa_times,
+                              sig.quantity_per_day,
+                              sig.schedule_type,
+                              sig.period,
+                              sig.dow,
+                              doc_pres.med_name medication_description
+                     FROM source_pillpack_core.docupack_prescriptions doc_pres
+                     LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
+                     LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
+                     LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
                      LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
-                     WHERE docs.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' 
-                     AND pres.rx_number IS NOT NULL 
-                     AND doc_pres.self_prescribed = false 
+                     WHERE docs.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
+                     AND sig.id IS NOT NULL
+                     AND pres.rx_number IS NOT NULL
+                     AND doc_pres.self_prescribed = false
                      AND docs.source = 'Escribe'
                      AND esc.id is NOT NULL"""
 ###############################################################################
@@ -621,11 +647,12 @@ def main():
         if len(results) == 0:
             results =  result.copy()
         else:
-            results = results.merge(result, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
+            results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
+                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
-    results = results.sort_values(by=['PREDICTED_RISK'], ascending=False, na_position='first') # sort by predicated risk from higher to lower and put NAs first
+    results = results.sort_values(by=['CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True, False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
     results.to_csv(PATH+OUTPUT, index=False)
     email = EmailClient()
     email.send_email(EMAIL_LIST,
@@ -633,6 +660,8 @@ def main():
        'Hey team, <br><br>\
        Attached please find the directon changes on {0}. If you have any question please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
        Key Columns: <br> \
+       DOCUPACK_URL: link to document <br> \
+       CURRENT_QUEUE: Archive, ExistingPatients <br> \
        ID: docupack prescriptions id <br> \
        PRESCRIPTION_ID <br> \
        MEDICATION_DESCRIPTION <br> \
