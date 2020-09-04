@@ -523,7 +523,7 @@ DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admins/sign_in#/' || 
                               sig.id sig_id,
                               sig.line_number,
                               sig.text sig_text,
-                              esc.directions directions,  
+                              esc.directions escribe_directions,  
                               esc.ndc,
                               sig.quantity_per_dose,
                               sig.units,
