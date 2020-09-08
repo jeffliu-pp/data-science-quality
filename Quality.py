@@ -21,11 +21,11 @@ nlp = spacy.load("en_core_web_sm")
 WORD2CHANGE = {}
 ### Others
 WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', 
-                    '[(][\s]*one[-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
+                    '[(][\s]*one[\s|-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
                     '[(][\s]*two[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*three[\s]+and[\s]+one[-|\s]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
-                    '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
+                    '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*twenty-eight[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
                     '[()[\s]*[0-9|.|,|/]+[\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)times ']
@@ -44,20 +44,20 @@ WORD2CHANGE[' and '] = [' & ']
 WORD2CHANGE[' before '] = [' prior to ']
 WORD2CHANGE[' every '] = [' each ', ' ea', ' per ']
 WORD2CHANGE[' through '] = [' thur ']
-WORD2CHANGE[' \\1 to \\2 '] = ['([0-9|/|.]+) or ([0-9|/|.]+)']
+WORD2CHANGE[' without '] = [' w/o ']
+WORD2CHANGE[' with '] = [' w/ ']
+#WORD2CHANGE[' \\1 to \\2 '] = ['([0-9|/|.]+) or ([0-9|/|.]+)']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
 WORD2CHANGE[' 0.25 '] = [' 1/4 ']
-WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ']
+WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ', ' 1-1/2 ']
 WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2 & 1/2 ', '2 1/2 ']
 WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
 WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
 WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
-WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half ', ' 1/2 ']
-WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*\-[\s]*([0-9]*)']
-WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*\-[\s]*([0-9]+[.]?[0-9]*)']
-WORD2CHANGE[' 1 '] = [' one ']
+WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half ', ' 1/2 a ', ' 1/2 ']
+WORD2CHANGE[' 1 '] = [' one ', ' a ', ' an ']
 WORD2CHANGE[' 2 '] = [' two ']
 WORD2CHANGE[' 3 '] = [' three ']
 WORD2CHANGE[' 4 '] = [' four ']
@@ -70,8 +70,10 @@ WORD2CHANGE[' 10 '] = [' ten ']
 WORD2CHANGE[' 12 '] = [' twelve ']
 WORD2CHANGE[' 14 '] = [' fourteen ']
 WORD2CHANGE[' 30 '] = [' thirty ']
+WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*\-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9]*)']
+WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*[\-][\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
 ### Medication Units
-WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? '] # puff, puffs, puff(s)   
@@ -122,7 +124,7 @@ WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
-WORD2CHANGE[' meal '] = [' meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
+WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = ['once']
@@ -131,6 +133,7 @@ WORD2CHANGE[' 2 times daily '] = ['[\s|\(]?b[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 3 times daily '] = ['[\s|\(]?t[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 4 times daily '] = ['[\s|\(]?q[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)[\s]*x' ]
+WORD2CHANGE[' minute '] = [' minute[(]?[s]?[)]?', ' min[(]?[s]?[)]? ']
 WORD2CHANGE[' hour '] = ['hour[.|,|;|-]+', 'hr[\s|.|,|;|-]+', 'hrs[\s|.|,|;|-]+', 'hurs[\s|.|,|;|-]+']
 WORD2CHANGE['day '] = ['day[.|,|;|-]+']
 WORD2CHANGE[' week '] = ['week[.|,|;|-]+', 'wk[\s|.|,|;|-]+', 'wks[\s|.|,|;|-]+ ']
@@ -141,7 +144,7 @@ WORD2CHANGE[' every \\1 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(
 WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]+to[\s]+([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)          
 WORD2CHANGE[' daily '] = [' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s]*day ', ' [o|n|c|e]*[\s]*every[\s]*day ', ' [o|n|c|e]*[\s]*per[\s]*day ', 
                           ' once[\s]+daily ', ' 1 time[\s]+daily ', ' once[\s]*day ', ' 1 time[\s]+day ', ' every 1 day ',
-                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+',
+                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ',
                           '/[\s]*day ', '/[\s]*d ', ' d ',                           
                           ' dailly ', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild '] # typos
 WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|\-]+'] # q2day(s)
@@ -658,7 +661,7 @@ def main():
     email.send_email(EMAIL_LIST,
        'Direction Changes ' + TIME,
        'Hey team, <br><br>\
-       Attached please find the directon changes on {0}. If you have any question please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+       Attached please find the direction changes on {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
        Key Columns: <br> \
        DOCUPACK_URL: link to document <br> \
        CURRENT_QUEUE: Archive, ExistingPatients <br> \
