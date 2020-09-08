@@ -20,13 +20,14 @@ nlp = spacy.load("en_core_web_sm")
 ###############################################################################
 WORD2CHANGE = {}
 ### Others
-WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]', 
+WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]',
                     '[(][\s]*one[\s|-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
                     '[(][\s]*two[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*three[\s]+and[\s]+one[-|\s]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*twenty-eight[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
-                    '[()[\s]*[0-9|.|,|/]+[\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
+                    '[(][\s]*[0-9|.|,|/]+[\s]*[)]', '[(][\s]*[0-9|.|,|/]+[\s]*to[\s]*[0-9|.|,|/]+[\s]*[)]',
+                    '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)times ']
 WORD2CHANGE[' mg / '] = [' mg/']
@@ -56,8 +57,8 @@ WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half
 WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
 WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
 WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
-WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half ', ' 1/2 a ', ' 1/2 ']
-WORD2CHANGE[' 1 '] = [' one ']
+WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half ', ' 1/2 a ', ' 1/2 ', ' 0.5/half ']
+WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ']
 WORD2CHANGE[' 2 '] = [' two ']
 WORD2CHANGE[' 3 '] = [' three ']
 WORD2CHANGE[' 4 '] = [' four ']
@@ -123,7 +124,8 @@ WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', 
+                               ' before[\s]+bedtime ', ' at[\s]+bedtime ', ' bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 # Time(s)
@@ -144,7 +146,7 @@ WORD2CHANGE[' every \\1 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(
 WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]+to[\s]+([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)          
 WORD2CHANGE[' daily '] = [' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s]*day ', ' [o|n|c|e]*[\s]*every[\s]*day ', ' [o|n|c|e]*[\s]*per[\s]*day ', 
                           ' once[\s]+daily ', ' 1 time[\s]+daily ', ' once[\s]*day ', ' 1 time[\s]+day ', ' every 1 day ',
-                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ',
+                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ', ' q[\s]+daily ',
                           '/[\s]*day ', '/[\s]*d ', ' d ',                           
                           ' dailly ', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild '] # typos
 WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|\-]+'] # q2day(s)
@@ -377,13 +379,15 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
             for t in [str(d)+' time weekly', str(d)+' times weekly', str(d)+' day weekly', str(d)+' days weekly',
                       str(d)+' time week', str(d)+' times week', str(d)+' day week', str(d)+' days week']:
                 if t == f:
-                    weekly = max(d, weekly) 
+                    weekly = max(d, weekly)
         for t in ['every 7 days', 'every 7 day', 
                   'every week', 'every 1 week','everyweek', 'each week', 'week', 'weeks', 'weekly']:
             if t in f:
                 weekly = max(1, weekly)
+                daily = 0
         for t in ['every 14 days', 'every 2 weeks', 'every other week']:
             if t in f:
+                daily = 0
                 info.add('every 2 weeks')                              
     daily = max(daily, morning + noon + afternoon + evening)
     if daily == 1:
