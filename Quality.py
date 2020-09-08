@@ -124,8 +124,7 @@ WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', 
-                               ' before[\s]+bedtime ', ' at[\s]+bedtime ', ' bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 # Time(s)
@@ -267,8 +266,10 @@ dp['210'] = NUM + EVERY + TOD # 1 every morning
 dp['310'] = NUM + TO + dp['210'] # 1 to 2 every morning
 dp['211'] = NUM + AT + [{'LOWER':'the','OP':'?'}] + TOD # 1 in morning
 dp['311'] = NUM + TO + dp['211'] # 1 to 2 in morning
-dp['212'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
-dp['312'] = NUM + TO + dp['212'] # 1 to 2 2 times
+dp['212'] = NUM + [{'LOWER':'bedtime','OP':'?'}] # 1 bedtime
+dp['312'] = NUM + TO + dp['212'] # 1 to 2 bedtime
+dp['213'] = NUM + NUM + [{'LOWER':{'IN':['time','times']}}] # 1 2 times
+dp['313'] = NUM + TO + dp['213'] # 1 to 2 2 times
 # Add Patterns
 for i in dp:
     dose_matcher.add('DOSE', None, dp[i])
