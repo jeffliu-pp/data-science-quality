@@ -21,8 +21,8 @@ nlp = spacy.load("en_core_web_sm")
 WORD2CHANGE = {}
 ### Others
 WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*each[\s]*[)]',
-                    '[(][\s]*one[\s|-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
-                    '[(][\s]*one[\s]+half[\s]+to[\s]+one[\s]*[)]',
+                    '[(][\s]*one[\s|-]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+&[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*one[\s]+and[\s]+a[-|\s]?half[\s]*[)]',
+                    '[(][\s]*one[\s]+half[\s]+to[\s]+one[\s]*[)]', 
                     '[(][\s]*two[\s]+and[\s]+one[-|\s]?half[\s]*[)]', '[(][\s]*three[\s]+and[\s]+one[-|\s]?half[\s]*[)]',
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
@@ -49,17 +49,17 @@ WORD2CHANGE[' every '] = [' each ', ' ea', ' per ']
 WORD2CHANGE[' through '] = [' thur ']
 WORD2CHANGE[' without '] = [' w/o ']
 WORD2CHANGE[' with '] = [' w/ ']
-#WORD2CHANGE[' \\1 to \\2 '] = ['([0-9|/|.]+) or ([0-9|/|.]+)']
+WORD2CHANGE[' - '] = ['-']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
-WORD2CHANGE[' 0.25 '] = [' 1/4 ', ' one quarter ']
+WORD2CHANGE[' 0.25 '] = [' 1/4 of a[n]? ', ' 1/4 ', ' one quarter of a[n]? ', ' one quarter ']
 WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ', ' 1-1/2 ']
 WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2 & 1/2 ', '2 1/2 ']
 WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
 WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
 WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
-WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half ', ' 1/2 a ', ' 1/2 ', ' 0.5/half ']
+WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half of a ', ' 0.5/half ', ' half ', ' 1/2 a ', ' 1/2 ']
 WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ']
 WORD2CHANGE[' 2 '] = [' two ']
 WORD2CHANGE[' 3 '] = [' three ']
@@ -73,12 +73,12 @@ WORD2CHANGE[' 10 '] = [' ten ']
 WORD2CHANGE[' 12 '] = [' twelve ']
 WORD2CHANGE[' 14 '] = [' fourteen ']
 WORD2CHANGE[' 30 '] = [' thirty ']
-WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*\-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9]*)']
-WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*[\-][\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
+WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9]*)']
+WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
 ### Medication Units
-WORD2CHANGE[' tablet '] = ['tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
+WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
                            ' table ', ' tabl ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
-WORD2CHANGE[' capsule '] = ['capsule[(]?[s]?[)]?[\s|.|,|;|-]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
+WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? '] # puff, puffs, puff(s)   
 WORD2CHANGE[' pump '] = ['pump[(]?[s]?[)]?[\s|.|,|;|-]+'] # pump, pumps, pump(s)           
@@ -121,16 +121,21 @@ WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' 
                                ' nightly[\s|.|,|;|-]+', ' nighlty '] # night(s), nightly, nighttime
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]?[.]?m[.]?)?[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
-WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+'] # breakfast(s)
-WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' acbkfst ']
+WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'bkfst'] # breakfast(s)
+WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
+WORD2CHANGE[' with breakfast '] = [' w breakfast ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
+WORD2CHANGE[' with lunch '] = [' w lunch ']
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
+WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
+WORD2CHANGE[' with meal '] = [' w meal ']
+WORD2CHANGE[' with food '] = [' w food ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = ['once']
 WORD2CHANGE[' 2 times '] = ['twice']
@@ -178,7 +183,7 @@ TOD_LIST = ['morning','a.m.','breakfast',
             'evening', 'dinner','bedtime'] # time of day
 UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'strip', 'scoop', 
              'ring', 'patch', 'packet', 'unit', 'application', 'syringe', 'vial', 'pen',
-             'gr', 'mg', 'mcg', 'ml']
+             'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food',
              'bedtime']
              #'need','necessary','direct']
@@ -418,7 +423,7 @@ def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
         for i in [1,2,3,4,5,6]: # combine
             if str(i) + ' and 0.5 ' in d:
                 d = re.sub(str(i)+' and 0.5', str(i+0.5),d)
-        if 'gr' not in d and 'mg' not in d and 'mcg' not in d and 'ml' not in d and 'unit' not in d:
+        if 'gr' not in d and 'mg' not in d and 'mcg' not in d and 'ml' not in d and 'meq' not in d and 'unit' not in d:
             a = re.findall('[0-9]+[.]?[0-9]*', d) # dose in tablet/capsule
             if len(a) > 0:       
                 count = 1
@@ -438,7 +443,8 @@ def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
                 for s in STRENGTH:
                     for d in DOSE:
                         if ('gr' in s and 'gr' in d) or ('mg' in s and 'mg' in d) or \
-                        ('mcg' in s and 'mcg' in d) or ('ml' in s and 'ml' in d) or ('unit' in s and 'unit' in d):
+                        ('mcg' in s and 'mcg' in d) or ('ml' in s and 'ml' in d) or \
+                        ('meq' in s and 'meq' in d) or ('unit' in s and 'unit' in d):
                             a = re.findall('[0-9]+[.]?[0-9]*',d) # dose in gr/mg/mcg/ml
                             b = re.findall('[0-9]+[.]?[0-9]*',s) # strength in gr/mg/mcg/ml
                         if len(a) > 0 and len(b) == 1:
@@ -664,7 +670,7 @@ def main():
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
-    results = results.sort_values(by=['CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True, False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
+    results = results.sort_values(by=['TOTAL_LINE_COUNT','CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True,True,False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
     results.to_csv(PATH+OUTPUT, index=False)
     email = EmailClient()
     email.send_email(EMAIL_LIST,
