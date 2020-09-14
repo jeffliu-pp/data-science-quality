@@ -27,7 +27,7 @@ WORD2CHANGE[' '] = ['\*\*', '[(][\s]*s[\s]*[)]', '[(][\s]*es[\s]*[)]', '[(][\s]*
                     '[(][\s]*one[\s]*[)]', '[(][\s]*two[\s]*[)]', '[(][\s]*three[\s]*[)]', '[(][\s]*four[\s]*[)]', '[(][\s]*five[\s]*[)]', '[(][\s]*six[\s]*[)]', 
                     '[(][\s]*seven[\s]*[)]', '[(][\s]*eight[\s]*[)]', '[(][\s]*nine[\s]*[)]', '[(][\s]*ten[\s]*[)]', '[(][\s]*twelve[\s]*[)]', '[(][\s]*fourteen[\s]*[)]', 
                     '[(][\s]*twenty-four[\s]*[)]', '[(][\s]*twenty-eight[\s]*[)]', '[(][\s]*thirty[\s]*[)]', 
-                    '[(][\s]*[0-9|.|,|/]+[\s]*[)]', '[(][\s]*[0-9|.|,|/]+[\s]*to[\s]*[0-9|.|,|/]+[\s]*[)]',
+                    '[(][\s]*[0-9|.|,|/|\s]+[)]', '[(][\s]*[0-9|.|,|/|\s]+to[\s]*[0-9|.|,|/|\s]+[)]',
                     '[(][0-9|/|.|\s|x]+m[c]?[g|l][\s]*[)]', '[(][0-9|/|.|\s|x]+m[c]?[g|l][\s]*total[\s]*[)]']
 WORD2CHANGE[' ( \\1 ) '] = ['[(]([a-zA-Z0-9]+[a-zA-Z0-9|\s|.|,|;]*)[)]']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)times ']
@@ -54,12 +54,12 @@ WORD2CHANGE[' - '] = ['-']
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
 WORD2CHANGE[' 0.25 '] = [' 1/4 of a[n]? ', ' 1/4 ', ' one quarter of a[n]? ', ' one quarter ']
-WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ', ' 1-1/2 ']
-WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2 & 1/2 ', '2 1/2 ']
-WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
-WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
-WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
-WORD2CHANGE[' 0.5 '] = [' one-half ', ' one half ', ' a half ', ' half a ', ' half of a ', ' 0.5/half ', ' half ', ' 1/2 a ', ' 1/2 ']
+WORD2CHANGE[' 1.5 '] = [' one and half ', ' one and a half ', ' one and one[\s|-]+half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1 & 1/2 ', ' 1 1/2 ', ' 1-1/2 ']
+WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one[\s|-]+half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2 & 1/2 ', '2 1/2 ']
+WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one[\s|-]+half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3 & 1/2 ', ' 3 1/2 ']
+WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one[\s|-]+half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4 & 1/2 ', ' 4 1/2 ']
+WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one[\s|-]+half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5 & 1/2 ', ' 5 1/2 ']
+WORD2CHANGE[' 0.5 '] = [' one[\s]*-[\s]*half ', ' one half ', ' a half ', ' half a ', ' half of a ', ' 0.5/half ', ' half ', ' 1/2 a ', ' 1/2 ']
 WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ']
 WORD2CHANGE[' 2 '] = [' two ']
 WORD2CHANGE[' 3 '] = [' three ']
@@ -77,23 +77,24 @@ WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9
 WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
 ### Medication Units
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
-                           ' table ', ' tabl ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+                           ' table ', 'tabet ', ' tabl ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
-WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inh[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? '] # puff, puffs, puff(s)   
+WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? ', 'inh[l]?[(]?[s]?[)]?[\s|.|,|;|-]+', ' aerosol[(]?[s]?[)]? '] # puff, puffs, puff(s)   
 WORD2CHANGE[' pump '] = ['pump[(]?[s]?[)]?[\s|.|,|;|-]+'] # pump, pumps, pump(s)           
 WORD2CHANGE[' drop '] = ['drop[(]?[s]?[)]?[\s|.|,|;|-]+', 'gtt[(]?[s]?[)]?[\s|.|,|;|-]+'] # drop, drops, drop(s)    
 WORD2CHANGE[' spray '] = ['spray[(]?[s]?[)]?[\s|.|,|;|-]+', 'spr[(]?[s]?[)]?[\s|.|,|;|-]+'] # spray, sparys, spray(s)   
-WORD2CHANGE[' strip '] = ['strip[(]?[s]?[)]?[\s|.|,|;|-]+'] # strip, strip, strip(s)
+WORD2CHANGE[' strip '] = ['strip[(]?[s]?[)]?[\s|.|,|;|-]+'] # strip(s)
 WORD2CHANGE[' scoop '] = ['scoop[(]?[s]?[)]?[\s|.|,|;|-]+'] # scoop(s)
 WORD2CHANGE[' syringe '] = ['syringe[(]?[s]?[)]?[\s|.|,|;|-]+'] # syringe(s)
-WORD2CHANGE[' ring '] = ['ring[(]?[s]?[)]?[\s|.|,|;|-]+'] # ring, rings, ring(s)      
-WORD2CHANGE[' patch '] = ['patch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # patch, patches, patch(es)   
+WORD2CHANGE[' ring '] = ['ring[(]?[s]?[)]?[\s|.|,|;|-]+'] # ring(s)      
+WORD2CHANGE[' patch '] = ['patch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # patch(es)   
 WORD2CHANGE[' packet '] = ['packet[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # packet(s)
 WORD2CHANGE[' unit '] = ['unit[(]?[s]?[)]?[\s|.|,|;|-|:]+', ' u[(]?[s]?[)]?[\s|.|,|;|-]+', ' iu ', ' unis '] # unit, units, unit(s) 
 WORD2CHANGE[' vial '] = ['vial[(]?[s]?[)]?[\s|.|,|;|-]+'] # vial(s)
 WORD2CHANGE[' pen '] = ['pen[(]?[s]?[)]?[\s|.|,|;|-]+'] # pen(s)
 WORD2CHANGE[' application '] = ['appliciation[(]?[s]?[)]?[\s|.|,|;|-]+', 'applicator[(]?[s]?[)]?[\s|.|,|;|-]+', 'app[l]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # application(s), app(s)              
+WORD2CHANGE[' ampule '] = ['amp[o]?ule[(]?[s]?[)]?[\s|.|,|;|-]+', 'ampul[(]?[s]?[)]?[\s|.|,|;|-]+'] # ampule(s), ampoule(s), ampul(s) 
 ### Time-Related Words
 # Day of Week (DOW)
 WORD2CHANGE[' monday '] = [' [q]?[\s]*mon[\s|.|,|;|-]+', '[q]?[\s]*monday[(]?[s]?[)]?[\s|.|,|;|-]+'] # mon, monday(s), qmonday(s)
@@ -127,7 +128,7 @@ WORD2CHANGE[' with breakfast '] = [' w breakfast ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' with lunch '] = [' w lunch ']
-WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+'] # dinner(s), supper(s)
+WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime '] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
@@ -137,12 +138,13 @@ WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 WORD2CHANGE[' with meal '] = [' w meal ']
 WORD2CHANGE[' with food '] = [' w food ']
 # Time(s)
-WORD2CHANGE[' 1 time '] = ['once']
-WORD2CHANGE[' 2 times '] = ['twice']
+WORD2CHANGE[' 1 time '] = [' once ']
+WORD2CHANGE[' 2 times '] = [' twice times ', ' twice ']
 WORD2CHANGE[' 2 times daily '] = ['[\s|\(]?b[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 3 times daily '] = ['[\s|\(]?t[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 4 times daily '] = ['[\s|\(]?q[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)[\s]*x' ]
+WORD2CHANGE[' \\1 minute '] = [' ([0-9]+)min[(]?[s]?[)]? ', ' ([0-9]+)minute[(]?[s]?[)]? ']
 WORD2CHANGE[' minute '] = [' minute[(]?[s]?[)]?', ' min[(]?[s]?[)]? ']
 WORD2CHANGE[' hour '] = ['hour[.|,|;|-]+', 'hr[\s|.|,|;|-]+', 'hrs[\s|.|,|;|-]+', 'hurs[\s|.|,|;|-]+']
 WORD2CHANGE['day '] = ['day[.|,|;|-]+']
@@ -151,7 +153,8 @@ WORD2CHANGE[' month '] = ['month[.|,|;|-]+']
 WORD2CHANGE[' hourly '] = [' a[\s]*hour ', ' each[\s]*hour[\s|.|,|;|-]+', ' every[\s]*hour[\s|.|,|;|-]+', ' per[\s]*hour[\s|.|,|;|-]+', 
                            '/[\s]*hour[\s|.|,|;|-]+', '/[\s]*hr[\s|.|,|;|-]+', '/[\s]*h[\s|.|,|;|-]+']
 WORD2CHANGE[' every \\1 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)    
-WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]+to[\s]+([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)          
+WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*to[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+', 
+                                           ' [.]?q[.]?[\s]*([0-9]+)[\s]*-[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q1 to 2 h          
 WORD2CHANGE[' daily '] = [' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s]*day ', ' [o|n|c|e]*[\s]*every[\s]*day ', ' [o|n|c|e]*[\s]*per[\s]*day ', 
                           ' once[\s]+daily ', ' 1 time[\s]+daily ', ' once[\s]*day ', ' 1 time[\s]+day ', ' every 1 day ',
                           ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ', ' q[\s]+daily ',
@@ -182,10 +185,9 @@ TOD_LIST = ['morning','a.m.','breakfast',
             'afternoon','p.m.',
             'evening', 'dinner','bedtime'] # time of day
 UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'strip', 'scoop', 
-             'ring', 'patch', 'packet', 'unit', 'application', 'syringe', 'vial', 'pen',
+             'ring', 'patch', 'packet', 'unit', 'application', 'ampule', 'syringe', 'vial', 'pen',
              'gr', 'mg', 'mcg', 'ml', 'meq']
-PERI_LIST = ['breakfast','lunch','dinner','meal','food',
-             'bedtime']
+PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk','bedtime']
              #'need','necessary','direct']
 ### Generate Patters for Frequency Information
 # Pattern Components
@@ -256,9 +258,11 @@ dp['103'] = dp['101'] + TO + dp['101'] # 1 tablet to 2 tablet
 dp['104'] = NUM + [{'LOWER':'and'}] + NUM + UNIT # 1 and 0.5 tablet
 # Special Patterns
 dp['201'] = NUM + [{'LOWER':'by'},{'LOWER':'mouth'}] # 2 by mouth
-dp['202'] = NUM + TO + dp['201'] # 1 to 2 by mouth
-dp['203'] = NUM + EVERY + NUM + TIME # 2 every 12 hour
-dp['203'] = NUM + TO + dp['203'] # 1 to 2 every 12 hour
+dp['301'] = NUM + TO + dp['201'] # 1 to 2 by mouth
+dp['202'] = NUM + EVERY + NUM + TIME # 2 every 12 hour
+dp['302'] = NUM + TO + dp['202'] # 1 to 2 every 12 hour
+dp['203'] = NUM + NUM + TIME # 2 30 minute
+dp['303'] = NUM + TO + dp['203'] # 1 to 2 30 minute
 dp['204'] = NUM + TIMELY # 1 daily
 dp['304'] = NUM + TO + dp['204'] # 1 to 2 daily
 dp['205'] = NUM + EVERY + TIMELY # 1 every daily
@@ -613,14 +617,29 @@ class EmailClient:
 ###############################################################################
 
 ###############################################################################
+#import datetime as dt
+#def KPI(DAYS=7):
+#    PATH = os.path.abspath(os.getcwd())+'/Results/'
+#    TIME = pd.to_datetime('now').date()
+#    data_list = []
+#    for i in range(DAYS):
+#        TIME = TIME - dt.timedelta(days=1)
+#        data = pd.read_csv(PATH+'results_'+TIME.isoformat()+'.csv')\
+#        [['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
+#        data_list.append(data)
+#    data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
+#    del(data_list)        
+###############################################################################
+
+###############################################################################
 def main():
     # Path and Filename
-    PATH = os.path.abspath(os.getcwd())+'/Data/'
+    PATH = os.path.abspath(os.getcwd())#+'/Data/'
     #TIME = '08272020'
     TIME = pd.to_datetime('now').date().isoformat()
-    INPUT_RISK = 'predicted_risk_'+TIME+'.csv'
-    INPUT_DIRECTION = 'direction_sigline_'+TIME+'.csv'
-    OUTPUT = 'results_'+TIME+'.csv'    
+    INPUT_RISK = '/Data/predicted_risk_'+TIME+'.csv'
+    INPUT_DIRECTION = '/Data/direction_sigline_'+TIME+'.csv'
+    OUTPUT = '/Results/results_'+TIME+'.csv'    
     ### Load Data
     print('******************************')
     print('Loading Predicted Risk')
@@ -693,7 +712,7 @@ def main():
        PREDICTED_RISK: risk of direction changes from ML model, high value means high risk <br><br>\
        Best, <br>data_science_bot'.format(TIME),
        PATH+OUTPUT)
-    #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','DRUG_DESCRIPTION','FREQ_CHANGE','DOSE_CHANGE','PERI_CHANGE','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
+    #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION',DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE','LINE_NUMBER','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
     return results
 
 if __name__ == "__main__":
