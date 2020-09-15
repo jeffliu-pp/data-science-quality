@@ -37,6 +37,7 @@ WORD2CHANGE[' mcg / '] = [' mcg/']
 WORD2CHANGE[' mcg '] = ['[\s]*mcg[(]?[s]?[)]? ', '[\s]*microgram[(]?[s]?[)]? '] # mcg(s), microgram(s)
 WORD2CHANGE[' gr '] = ['[\s]*gr[(]?[s]?[)]? ', '[\s]*gram[(]?[s]?[)]? ', ' g ', ' gm '] # gr(s), gram(s)
 WORD2CHANGE[' ml '] = ['[\s]*ml[(]?[s]?[)]? ', '[\s]*milliliter[(]?[s]?[)]? '] # ml(s), milliliter(s)
+WORD2CHANGE[' meq '] = [' milliequivalent[(]?[s]?[)]? ', ' meq[(]?[s]?[)]? '] 
 WORD2CHANGE[' po \\1 '] = ['po(q[a-z]{2})', 'po(q[d|w]{1})', 'po([b|t|q]{1}id)'] # poqam, poqhs, poqd, poqw, pobid, potid, poqid
 WORD2CHANGE[' ac hs '] = [' a[.]?c[.]?h[.]?s[.]? '] 
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
@@ -77,7 +78,7 @@ WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9
 WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
 ### Medication Units
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
-                           ' table ', 'tabet ', ' tabl ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+                           ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', ' capsul '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? ', 'inh[l]?[(]?[s]?[)]?[\s|.|,|;|-]+', ' aerosol[(]?[s]?[)]? '] # puff, puffs, puff(s)   
@@ -109,18 +110,18 @@ WORD2CHANGE[' morning '] = [' morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' mornng ']
 WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
                                ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
                                ' before midday '] # morning(s), qam
-WORD2CHANGE[' a.m. '] = ['[\s]*a[.]?m[.]?[\s|.|,|;|-]+'] # a.m.
+WORD2CHANGE[' a.m. '] = ['[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' a..m '] # a.m.
 WORD2CHANGE[' midday '] = [' noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' midday[(]?[s]?[)]?[\s|.|,|;|-]+'] # noon(s), midday(s)
 WORD2CHANGE[' in midday '] = [' q[.]?[\s]*noon[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' afternoon '] = [' afternoon[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' in afternoon '] = [' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*p[.]?m[.]?[\s|.|,|;|-]+', 
                                  ' in[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*p[.]?m[.]?[\s|.|,|;|-]+'
                                  ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s), qpm
-WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+'] # p.m.
+WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' evening '] = [' evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' nighttime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+']
 WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+',
                                ' nightly[\s|.|,|;|-]+', ' nighlty '] # night(s), nightly, nighttime
-WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]?[.]?m[.]?)?[\s|.|,|;|-]+'] # q6am    
+WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
 WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst'] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
@@ -143,6 +144,9 @@ WORD2CHANGE[' 2 times '] = [' twice times ', ' twice ']
 WORD2CHANGE[' 2 times daily '] = ['[\s|\(]?b[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 3 times daily '] = ['[\s|\(]?t[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' 4 times daily '] = ['[\s|\(]?q[.]?i[.]?d[.]?[\s|,|;|\-|\)]+']
+WORD2CHANGE[' 2 times weekly '] = ['[\s|\(]?b[.]?i[.]?w[.]?[\s|,|;|\-|\)]+']
+WORD2CHANGE[' 3 times weekly '] = ['[\s|\(]?t[.]?i[.]?w[.]?[\s|,|;|\-|\)]+']
+WORD2CHANGE[' 4 times weekly '] = ['[\s|\(]?q[.]?i[.]?w[.]?[\s|,|;|\-|\)]+']
 WORD2CHANGE[' \\1 times '] = [' ([0-9]+)[\s]*x' ]
 WORD2CHANGE[' \\1 minute '] = [' ([0-9]+)min[(]?[s]?[)]? ', ' ([0-9]+)minute[(]?[s]?[)]? ']
 WORD2CHANGE[' minute '] = [' minute[(]?[s]?[)]?', ' min[(]?[s]?[)]? ']
@@ -159,7 +163,7 @@ WORD2CHANGE[' daily '] = [' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s
                           ' once[\s]+daily ', ' 1 time[\s]+daily ', ' once[\s]*day ', ' 1 time[\s]+day ', ' every 1 day ', ' for 1 day', ' for a day ',
                           ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ', ' q[\s]+daily ',
                           '/[\s]*day ', '/[\s]*d ', ' d ',                           
-                          ' dailly ', 'dily', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild ', ' daiily '] # typos
+                          ' dailly ', 'dily', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild ', ' daiily ', ' daliy '] # typos
 WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|\-]+'] # q2day(s)
 WORD2CHANGE[' every other day '] = [' [.]?q[.]?[\s]*other[\s]*day[\s|.|,|;|\-]+', ' [.]?q[.]?od '] # qotherday, qod   
 WORD2CHANGE[' weekly '] = [' [o|n|c|e]*[\s]*a[\s]*week ', ' [o|n|c|e]*[\s]*each[\s]*week ', ' [o|n|c|e]*[\s]*every[\s]*week ', ' [o|n|c|e]*[\s]*per[\s]*week ', 
@@ -214,15 +218,15 @@ fp = {}
 # Normal Patterns
 fp['101'] = TIMELY # weekly
 fp['102'] = EVERY + TIME # every week
-fp['103'] = EVERY + NUM + TIME # every two weeks
+fp['103'] = EVERY + NUM + TIME # every 2 weeks
 fp['104'] = EVERY + OTHER + TIME # every other week
-fp['105'] = EVERY + NUM + TO + NUM + TIME # every two to three weeks
-fp['111'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + TIMELY # two times weekly
-fp['112'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + TIME # two times week 
-fp['113'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + EVERY + TIME # two times every week 
-fp['114'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['111'] # two (times) to three times weekly
-fp['115'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['112'] # two (times) to three times week
-fp['116'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['113'] # two (times) to three times every week
+fp['105'] = EVERY + NUM + TO + NUM + TIME # every 2 to 3 weeks
+fp['111'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + TIMELY # 2 times weekly
+fp['112'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + TIME # 2 times week 
+fp['113'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + EVERY + TIME # 2 times every week 
+fp['114'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['111'] # 2 (times) to 3 times weekly
+fp['115'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['112'] # 2 (times) to 3 times week
+fp['116'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['113'] # 2 (times) to 3 times every week
 ## DOW Patterns
 fp['201'] = DOW + [{'LOWER':',','OP':'?'}] + [{'LEMMA':{'IN':DOW_LIST},'OP':'?'},{'LOWER':',','OP':'?'}]*5 + \
             [{'LOWER':'and','OP':'?'},{'LEMMA':{'IN':DOW_LIST},'OP':'?'}] # monday (,tuseday, and wednesday)
