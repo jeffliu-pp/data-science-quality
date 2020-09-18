@@ -665,6 +665,7 @@ def main():
     data.columns = data.columns.str.upper()
     data = data.drop_duplicates()  # remove duplicated records   
     data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
+    data.to_csv(PATH+'/Results/snapshopts_'+TIME+'.csv', index=False)
     # Extract Medication Strength Information
     print('******************************')
     print('Extracing Medication Strength Infromation')
