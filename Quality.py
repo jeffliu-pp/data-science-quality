@@ -77,6 +77,7 @@ WORD2CHANGE[' 30 '] = [' thirty ']
 WORD2CHANGE[' 0.5 to \\1 '] = [' 1/2[\s]*-[\s]*([0-9]*)', ' 1/2[\s]+or[\s]+([0-9]*)']
 WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)', '([0-9]+[.]?[0-9]*)[\s]+or[\s]+([0-9]+[.]?[0-9]*)']
 ### Medication Units
+WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
                            ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', ' capsul '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
@@ -261,7 +262,7 @@ dp['102'] = NUM + TO + dp['101'] # 1 to 2 tablet
 dp['103'] = dp['101'] + TO + dp['101'] # 1 tablet to 2 tablet
 dp['104'] = NUM + [{'LOWER':'and'}] + NUM + UNIT # 1 and 0.5 tablet
 # Special Patterns
-dp['200'] = NUM + [{'LOWER':'each'},{'LOWER':'by'},{'LOWER':'mouth'}] # 1 each by mouth
+dp['200'] = NUM + [{'LOWER':'every'},{'LOWER':'by'},{'LOWER':'mouth'}] # 1 every by mouth
 dp['201'] = NUM + [{'LOWER':'by'},{'LOWER':'mouth'}] # 2 by mouth
 dp['301'] = NUM + TO + dp['201'] # 1 to 2 by mouth
 dp['202'] = NUM + EVERY + NUM + TIME # 2 every 12 hour
@@ -544,7 +545,7 @@ RISK_QUERY = """SELECT id,
                        predicted_risk
                 FROM analytics_core.drug_dir_pv1_rx_risk
                 WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'"""
-DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admins/sign_in#/' || docs.id) docupack_url,
+DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
                               docs.queue current_queue,
                               doc_pres.id id,
                               sig.prescription_id,
@@ -630,7 +631,7 @@ class EmailClient:
 #    data_list = []
 #    for i in range(DAYS):
 #        TIME = TIME - dt.timedelta(days=1)
-#        data = pd.read_csv(PATH+'results_'+TIME.isoformat()+'.csv')\
+#        data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')\
 #        [['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
 #        data_list.append(data)
 #    data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
@@ -726,10 +727,29 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
+#import datetime as dt
+#PATH = os.path.abspath(os.getcwd())+'/Results/'
+#TIME = pd.to_datetime('now').date()
+#data_list = []
+#for i in range(DAYS):
+#    TIME = TIME - dt.timedelta(days=1)
+#    data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')\
+#        [['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
+#    data_list.append(data)
+#data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
+#
+#
+#nm_list = []
+#for i in range(1,10):
+#    nm = pd.read_csv(PATH+'Near_Misses_2020-09-0'+str(i)+'.csv')
+#    nm_list.append(nm)
+#nm = pd.concat(nm_list, axis=0, ignore_index=True).drop_duplicates()  
+#
+#
+#new = nm.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
+#print(len(nm), len(new[new.TOTAL_LINE_COUNT.notnull()]))
+#
+#new.to_csv(PATH+'KPI_0901-0908.csv',index=False)
 
 
 
