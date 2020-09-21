@@ -524,7 +524,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
     return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT',\
+                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_DAYS_SUPPLY',\
                  #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
@@ -554,6 +554,8 @@ DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admin/docupack/#/' ||
                               sig.line_number,
                               sig.text sig_text,
                               esc.directions escribe_directions,  
+                              esc.quantity as escribe_quantity,
+                              esc.days_supply as escribe_days_supply,
                               esc.ndc,
                               sig.quantity_per_dose,
                               sig.units,
@@ -694,7 +696,7 @@ def main():
             results =  result.copy()
         else:
             results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT'], how='outer')
+                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_DAYS_SUPPLY'], how='outer')
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
