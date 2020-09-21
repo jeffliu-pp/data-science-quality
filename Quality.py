@@ -61,7 +61,7 @@ WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and on
 WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one[\s|-]+half ', ' 4[&|\s]*1/2 ', ' 4 and 0.5 ', ' 4 and 1/2 ', ' 4[\s|-]+1/2 ']
 WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one[\s|-]+half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5[\s|-]+1/2 ']
 WORD2CHANGE[' 0.5 '] = [' one[\s]*-[\s]*half ', ' one half ', ' a half ', ' half a ', ' half of a ', ' 0.5/half ', ' half ', ' 1/2 a ', ' 1/2 ']
-WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ']
+WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ', ' 0ne ']
 WORD2CHANGE[' 2 '] = [' two ']
 WORD2CHANGE[' 3 '] = [' three ']
 WORD2CHANGE[' 4 '] = [' four ']
@@ -80,7 +80,8 @@ WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)'
 WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
                            ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
-WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', ' capsul '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
+WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', 
+                            ' capsul ', ' cpaules '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', ' inhaler[(]?[s]?[)]? ', 'inh[l]?[(]?[s]?[)]?[\s|.|,|;|-]+', ' aerosol[(]?[s]?[)]? '] # puff, puffs, puff(s)   
 WORD2CHANGE[' pump '] = ['pump[(]?[s]?[)]?[\s|.|,|;|-]+'] # pump, pumps, pump(s)           
@@ -698,6 +699,10 @@ def main():
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
     results = results.sort_values(by=['TOTAL_LINE_COUNT','CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True,True,False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
+    # Remove Lines with 'pen needle' in ESCRIBE_DIRECTIONS and 'topical' in SIG_TEXT while only missing does information, this is requested by Colin on 09/18/2020 to reduce false positives
+    results = results[~((results.ESCRIBE_DIRECTIONS.str.contains(pat='pen needle',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
+    results = results[~((results.SIG_TEXT.str.contains(pat='topical',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
+    # Save as a Local File
     results.to_csv(PATH+OUTPUT, index=False)
     email = EmailClient()
     email.send_email(EMAIL_LIST,
