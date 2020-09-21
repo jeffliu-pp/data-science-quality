@@ -721,6 +721,8 @@ def main():
        SIG_TEXT <br> \
        LINE_NUMBER: sigline number <br> \
        TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
+       ESCRIBE_QUANTITY <br> \
+       ESCRIBE_DAYS_SUPPLY <br> \
        FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
        DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
        PERIPHERAL_CHANGE: if Ture, there are changes <br> \
