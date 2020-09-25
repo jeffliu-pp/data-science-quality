@@ -124,7 +124,7 @@ WORD2CHANGE[' in afternoon '] = [' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+'
                                  ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s)
 WORD2CHANGE[' evening '] = [' evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' nighttime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+']
 WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*night[(]?[s]?[)]?[\s|.|,|;|-]+', 
-                               ' q[.]?[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*p[.]?m[.]?[\s|.|,|;|-]+'
+                               ' q[.]?[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*p[.]?m[.]?[\s|.|,|;|-]+',
                                ' nightly[\s|.|,|;|-]+', ' nighlty ', ' every[\s]*p[.]?m[.]?[\s|.|,|;|-]+'] # night(s), nightly, nighttime, qpm
 WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
@@ -497,6 +497,10 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
                 find = True
         if find == False:
             info.add(p)
+    if 'morning' in info and 'breakfast' in info: # remove words with similar meaning
+        info.remove('morning')
+    if 'evening' in info and 'dinner' in info: # remove words with similar meaning
+        info.remove('evening')        
     if 'evening' in info and 'bedtime' in info: # remove words with similar meaning
         info.remove('evening')
     return info
