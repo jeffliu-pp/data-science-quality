@@ -491,8 +491,15 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
                     break
             if find == True:
                 break
+        for i in ['morning','midday','afternoon','evening']:
+            if i in p:
+                info.add(i)
+                find = True
+                break
         if find == False:
             info.add(p)
+    if 'evening' in info and 'bedtime' in info: # remove words with similar meaning
+        info.remove('evening')
     return info
 ###############################################################################
 
