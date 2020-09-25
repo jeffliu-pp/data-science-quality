@@ -83,7 +83,7 @@ WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
                            ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' DOT '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', 
-                            ' capsul ', ' cpaules '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
+                            ' capsul ', ' cpaules ', ' capsulse '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', ' pufs ',
                          'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhaler[(]?[s]?[)]? ', 'inh[l]?[(]?[s]?[)]?[\s|.|,|;|-]+', ' aerosol[(]?[s]?[)]? '] # puff, puffs, puff(s)   
@@ -162,7 +162,7 @@ WORD2CHANGE[' week '] = ['week[.|,|;|-]+', 'wk[\s|.|,|;|-]+', 'wks[\s|.|,|;|-]+ 
 WORD2CHANGE[' month '] = ['month[.|,|;|-]+']
 WORD2CHANGE[' hourly '] = [' a[\s]*hour ', ' each[\s]*hour[\s|.|,|;|-]+', ' every[\s]*hour[\s|.|,|;|-]+', ' per[\s]*hour[\s|.|,|;|-]+', 
                            '/[\s]*hour[\s|.|,|;|-]+', '/[\s]*hr[\s|.|,|;|-]+', '/[\s]*h[\s|.|,|;|-]+']
-WORD2CHANGE[' every \\1 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)    
+WORD2CHANGE[' every \\1 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s|-]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q12hour(s)    
 WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*to[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+', 
                                            ' [.]?q[.]?[\s]*([0-9]+)[\s]*-[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q1 to 2 h          
 WORD2CHANGE[' daily '] = [' a[\s]*day ', ' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s]*day ', ' [o|n|c|e]*[\s]*every[\s]*day ', ' [o|n|c|e]*[\s]*per[\s]*day ', 
@@ -198,8 +198,9 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              'ring', 'patch', 'packet', 'unit', 'ampule', 'syringe', 'vial', 'pen', 'piece', 
              # 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
-PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk','bedtime']
-             #'need','necessary','direct']
+PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
+             'morning', 'midday','afternoon','evening','bedtime',
+             'need','necessary','direct']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -760,17 +761,17 @@ if __name__ == "__main__":
 #    nm_list.append(nm)
 #nm = pd.concat(nm_list, axis=0, ignore_index=True).drop_duplicates()  
 #
-#data = pd.read_csv(PATH+'Direction_Changes_2020-09-19.csv')
-#nm = pd.read_csv(PATH+'Near_Misses_2020-09-19.csv')
-#ss = pd.read_csv(PATH+'snapshots_2020-09-19.csv')
-#
+#data = pd.read_csv(PATH+'Direction_Changes_2020-09-20.csv')
+#nm = pd.read_csv(PATH+'Near_Misses_2020-09-20.csv')
+#ss = pd.read_csv(PATH+'snapshots_2020-09-20.csv')
+##
 #new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
-#
+##
 #new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
 #print(len(nm), len(new[new.TOTAL_LINE_COUNT.notnull()]))
+##
+#new.to_csv(PATH+'KPI_0920.csv',index=False)
 #
-#new.to_csv(PATH+'KPI_0919.csv',index=False)
-
 
 
 #    ### Load Medication
