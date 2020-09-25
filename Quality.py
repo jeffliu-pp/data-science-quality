@@ -586,7 +586,8 @@ DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admin/docupack/#/' ||
                      LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
                      LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
                      LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
-                     WHERE docs.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
+                     WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
+                     AND pres.created_at < CURRENT_TIMESTAMP()
                      AND sig.id IS NOT NULL
                      AND pres.rx_number IS NOT NULL
                      AND doc_pres.self_prescribed = false
