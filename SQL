@@ -48,9 +48,22 @@ WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'
 --------------------------------------------------------
 --------------------------------------------------------
 -- near miss
-WITH audit_data AS(
+WITH 
+-------------------
+doc2first_return_time AS (                            --###
+SELECT DOCUMENT_ID, MIN(
+CASE WHEN 
+((MOVED_TO_QUEUE = 'DataEntry') AND (ACTION = 'Transitioned') AND (CURRENT_QUEUE = 'RphCheck'))
+THEN CREATED_AT ELSE TO_TIMESTAMP_TZ('2030-01-01T12:00:00.000+00:00') END)   --###
+FIRST_RETURNED_TO_DE_AT  --###
+FROM source_pillpack_core.docupack_document_histories  --###
+GROUP BY DOCUMENT_ID  --###
+), --###
+--------------------
+audit_data AS(
 -- real-time data
-SELECT    doc_pres.id id,
+SELECT    
+doc_pres.id id,
           sig.prescription_id,
           sig.id sig_id,
           sig.line_number,
@@ -72,10 +85,13 @@ LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id =
 LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
 LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
 LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
+LEFT JOIN doc2first_return_time ON docs.id = doc2first_return_time.DOCUMENT_ID     --###
       WHERE    
-      pres.created_at >= '2020-09-24T08:15:00.000+00:00'   -- query run time minus 24 hours
-     AND pres.created_at < '2020-09-25T08:15:00.000+00:00'    -- query run time
-    AND  ((docs.entered_rph_check_at is null) or (docs.entered_rph_check_at > '2020-09-25T08:15:00.000+00:00') ) -- query run time
+      pres.created_at >= '2020-10-06T08:15:00.000+00:00'   -- query run time minus 24 hours
+     AND pres.created_at < '2020-10-07T08:15:00.000+00:00'    -- query run time
+    AND  ((docs.entered_rph_check_at is null) or 
+          ( (doc2first_return_time.FIRST_RETURNED_TO_DE_AT > '2020-10-07T08:15:00.000+00:00') AND (docs.entered_rph_check_at> '2020-10-07T08:15:00.000+00:00') ) 
+          ) -- query run time  --###
         AND sig.id IS NOT NULL
         AND       pres.rx_number IS NOT NULL
         AND       doc_pres.self_prescribed = false

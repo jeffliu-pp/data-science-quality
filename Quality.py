@@ -144,6 +144,7 @@ WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
 WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ']
 WORD2CHANGE[' with food '] = [' w food ']
+WORD2CHANGE[' shortness of breath '] = [' s[.]?o[.]?b[.]? ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = [' once ']
 WORD2CHANGE[' 2 times '] = [' twice times ', ' twice ']
@@ -199,8 +200,7 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              # 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
-             'morning', 'midday','afternoon','evening','bedtime',
-             'need','necessary','direct']
+             'morning', 'midday','afternoon','evening','bedtime']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -250,9 +250,15 @@ fp['301'] = TOD + [{'LOWER':',','OP':'?'}] + [{'LEMMA':{'IN':TOD_LIST},'OP':'?'}
             [{'LOWER':'and','OP':'?'},{'LEMMA':{'IN':TOD_LIST},'OP':'?'}] # morning (, afternoon, and bedtime)
 fp['302'] = EVERY + fp['301'] # every morning
 fp['303'] = NUM + [{'LOWER':{'IN':['a.m.','p.m.']}}] # 7 am
-fp['304'] = fp['303'] + [{'LOWER':',','OP':'?'},{'LOWER':'and','OP':'?'}] + fp['303'] # 7 am and 12 pm
-fp['305'] = fp['303'] + [{'LOWER':',','OP':'?'}] + fp['304'] # 7 am, 12 pm, and 6 pm
-fp['306'] = fp['303'] + [{'LOWER':',','OP':'?'}] + fp['305'] # 7 am, 12 pm, 6 pm and 10 pm
+fp['304'] = [{'LOWER':'at'}] + fp['303'] # at 7 am
+fp['305'] = fp['303'] + [{'LOWER':',','OP':'?'},{'LOWER':'and','OP':'?'}] + fp['303'] # 7 am and 12 pm
+fp['306'] = [{'LOWER':'at'}] + fp['305'] # at 7 am and 12 pm
+fp['307'] = fp['303'] + [{'LOWER':',','OP':'?'}] + fp['305'] # 7 am, 12 pm, and 6 pm
+fp['308'] = [{'LOWER':'at'}] + fp['307'] # at 7 am, 12 pm, and 6 pm
+fp['309'] = fp['303'] + [{'LOWER':',','OP':'?'}] + fp['307'] # 7 am, 12 pm, 6 pm, and 10 pm
+fp['310'] = [{'LOWER':'at'}] + fp['307'] # at 7 am, 12 pm, 6 pm, and 10 pm
+fp['311'] = [{'LOWER':'at'}] + NUM # at 1030
+fp['312'] = fp['311'] + [{'LOWER':',','OP':'?'},{'LOWER':'and','OP':'?'}] + NUM # at 1030 and 2100
 # Add Patterns
 for i in fp:
     freq_matcher.add('FREQUENCY', None, fp[i])
@@ -268,6 +274,7 @@ dp['101'] = NUM + UNIT # 2 tablet
 dp['102'] = NUM + TO + dp['101'] # 1 to 2 tablet
 dp['103'] = dp['101'] + TO + dp['101'] # 1 tablet to 2 tablet
 dp['104'] = NUM + [{'LOWER':'and'}] + NUM + UNIT # 1 and 0.5 tablet
+dp['105'] = [{'LOWER':'up'},{'LOWER':'to'}] + dp['101'] # up to 2 tablet
 # Special Patterns
 dp['200'] = NUM + [{'LOWER':'every'},{'LOWER':'by'},{'LOWER':'mouth'}] # 1 every by mouth
 dp['201'] = NUM + [{'LOWER':'by'},{'LOWER':'mouth'}] # 2 by mouth
@@ -314,7 +321,8 @@ pp['102'] = AT + pp['101'] # before breakfast
 pp['103'] = NUM + TIME + pp['102'] # 1 hour before breakfast
 pp['104'] = NUM + TO + pp['103'] # one to two hours before breakfast
 pp['105'] = NUM + TIME + TO + pp['104'] # 30 minutes to one hour before breakfast
-pp['106'] = [{'LOWER':'as'}] + pp['101'] # as needed
+pp['106'] = [{'LOWER':'and'},{'LOWER':'as'},{'LEMMA':{'IN':['direct','necessary','need']}}] # as needed
+pp['107'] = [{'LOWER':'shortness'},{'LOWER':'of'},{'LOWER':'breath'}]
 #fp['401'] = [{'LOWER:':'for','POS':'ADP'}] + NUM + TIME # for two weeks, keyword 'for' is not working!!!
 # Add Patterns
 for i in pp:
@@ -380,6 +388,29 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         dow[d] = 0
     weekly = 0
     for f in FREQ:
+        # time
+        times = re.findall('[0-9][0-9]?[:]?[0-9]?[0-9]?[\s]+p.m.', f) # timestamps, 10/09/2020
+        for t in times:
+            t = re.sub('[\s]+', ' ', t)
+            info.add(t)
+        # military time
+        military_times = re.findall('[0-9]{4}', f) # find military time, 10/09/2020
+        for t in military_times:
+            if int(t[:2]) >= 12:
+                if int(t[2:]) > 0:
+                    info.add(t[:2]+':'+t[2:]+' p.m.')
+                else:
+                    info.add(t[:2]+' p.m.')
+                if int(t[:2]) == 12 and int(t[2:]) == 0:
+                    noon =1
+                else:
+                    afternoon = 1
+            else:
+                if int(t[2:]) > 0:
+                    info.add(t[:2]+':'+t[2:]+' p.m.')
+                else:
+                    info.add(t[:2]+' p.m.')                    
+                morning = 1
         for t in ['morning', 'breakfast', 'a.m.']:
             if t in f:
                 morning = 1
@@ -685,7 +716,9 @@ def main():
     data.columns = data.columns.str.upper()
     data = data.drop_duplicates()  # remove duplicated records   
     data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
+    data = data.sort_values(by=['ID','LINE_NUMBER'], ascending=[True,True], na_position='last')
     data.to_csv(PATH+'/Results/snapshots_'+TIME+'.csv', index=False)
+    data['SIG_TEXT'] = data.groupby(['ID'])['SIG_TEXT'].transform(lambda x: ' '.join(x)) # combine sig_text in multi-line prescriptions, 10/09/2020
     # Extract Medication Strength Information
     print('******************************')
     print('Extracing Medication Strength Infromation')
@@ -772,17 +805,27 @@ if __name__ == "__main__":
 #    nm_list.append(nm)
 #nm = pd.concat(nm_list, axis=0, ignore_index=True).drop_duplicates()  
 #
-#data = pd.read_csv(PATH+'Direction_Changes_2020-09-20.csv')
-#nm = pd.read_csv(PATH+'Near_Misses_2020-09-20.csv')
-#ss = pd.read_csv(PATH+'snapshots_2020-09-20.csv')
-##
-#new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
-##
-#new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
-#print(len(nm), len(new[new.TOTAL_LINE_COUNT.notnull()]))
-##
-#new.to_csv(PATH+'KPI_0920.csv',index=False)
-#
+
+#results = {}
+#for i in range(1, 8):
+#    data = pd.read_csv(PATH+'Direction_Changes_2020-10-0'+str(i)+'.csv')
+#    nm = pd.read_csv(PATH+'Near_Misses_2020-10-0'+str(i)+'.csv')
+#    ss = pd.read_csv(PATH+'snapshots_2020-10-0'+str(i)+'.csv')
+#    
+#    new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
+#    
+#    new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
+#    #print(len(nm), len(new[new.TOTAL_LINE_COUNT.notnull()]))
+#    
+#    new = new.rename(columns={'SIG_TEXT_x':'NEW_SIG_TEXT','SIG_TEXT_y':'ORIGINAL_SIG_TEXT', 'TOTAL_LINE_COUNT_x': 'TOTAL_LINE_COUNT'})
+#    if len(results) == 0:
+#        results = new
+#    else:
+#        results = pd.concat([results, new], sort=False)
+#    
+#results[['ID','PRESCRIPTION_ID','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
+#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-0107.csv',index=False)
+
 
 
 #    ### Load Medication
