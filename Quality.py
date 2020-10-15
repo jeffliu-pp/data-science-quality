@@ -632,7 +632,7 @@ DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || 
                      AND pres.rx_number IS NOT NULL
                      AND doc_pres.self_prescribed = false
                      AND docs.source = 'Escribe'
-                     AND esc.id is NOT NULL"""
+                     AND ESCRIBE_DIRECTIONS is NOT NULL"""
 ###############################################################################
 
 ###############################################################################
