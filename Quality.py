@@ -323,8 +323,10 @@ pp['102'] = AT + pp['101'] # before breakfast
 pp['103'] = NUM + TIME + pp['102'] # 1 hour before breakfast
 pp['104'] = NUM + TO + pp['103'] # one to two hours before breakfast
 pp['105'] = NUM + TIME + TO + pp['104'] # 30 minutes to one hour before breakfast
-pp['106'] = [{'LOWER':'and'},{'LOWER':'as'},{'LEMMA':{'IN':['direct','necessary','need']}}] # as needed
-pp['107'] = [{'LOWER':'shortness'},{'LOWER':'of'},{'LOWER':'breath'}]
+pp['106'] = [{'LOWER':'as'},{'LEMMA':{'IN':['direct','necessary','need']}}] # as needed
+pp['107'] = [{'LOWER':'and'}] + pp['106'] # and as needed
+pp['108'] = [{'LOWER':'if'},{'LEMMA':{'IN':['direct','necessary','need']}}] # if needed
+pp['109'] = [{'LOWER':'shortness'},{'LOWER':'of'},{'LOWER':'breath'}]
 #fp['401'] = [{'LOWER:':'for','POS':'ADP'}] + NUM + TIME # for two weeks, keyword 'for' is not working!!!
 # Add Patterns
 for i in pp:
@@ -430,7 +432,7 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         for t in ['evening', 'dinner', 'bedtime']: 
             if t in f:
                 evening = 1        
-        for d in [1,2,3,4]:
+        for d in [1,2,3,4,5,6]:
             for t in [str(d)+' time daily', str(d)+' times daily', str(d)+' time day', str(d)+' times day']:
                 if t == f:
                     daily = max(d, daily)        
@@ -630,7 +632,7 @@ DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || 
                      AND pres.rx_number IS NOT NULL
                      AND doc_pres.self_prescribed = false
                      AND docs.source = 'Escribe'
-                     AND esc.id is NOT NULL """
+                     AND esc.id is NOT NULL"""
 ###############################################################################
 
 ###############################################################################
