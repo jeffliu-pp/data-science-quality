@@ -81,7 +81,7 @@ WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)'
 ### Medication Units
 WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
-                           ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' DOT '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+                           ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' DOT ', ' tablelet ', ' tablyes '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', 
                             ' capsul ', ' cpaules ', ' capsulse '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
@@ -101,7 +101,9 @@ WORD2CHANGE[' vial '] = ['vial[(]?[s]?[)]?[\s|.|,|;|-]+'] # vial(s)
 WORD2CHANGE[' pen '] = ['pen[(]?[s]?[)]?[\s|.|,|;|-]+'] # pen(s)
 #WORD2CHANGE[' application '] = ['appliciation[(]?[s]?[)]?[\s|.|,|;|-]+', 'applicator[(]?[s]?[)]?[\s|.|,|;|-]+', 'app[l]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # application(s), app(s)              
 WORD2CHANGE[' ampule '] = ['amp[o]?ule[(]?[s]?[)]?[\s|.|,|;|-]+', 'ampul[(]?[s]?[)]?[\s|.|,|;|-]+'] # ampule(s), ampoule(s), ampul(s) 
-WORD2CHANGE[' piece '] = ['piece[s]?[\s|.|,|;|-]+']
+WORD2CHANGE[' piece '] = ['piece[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' needle '] = ['needle[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' suppository '] = ['suppository[\s|.|,|;|-]+', 'suppositories[\s|.|,|;|-]+']
 ### Time-Related Words
 # Day of Week (DOW)
 WORD2CHANGE[' monday '] = [' [q]?[\s]*mon[\s|.|,|;|-]+', '[q]?[\s]*monday[(]?[s]?[)]?[\s|.|,|;|-]+'] # mon, monday(s), qmonday(s)
@@ -168,7 +170,7 @@ WORD2CHANGE[' every \\1 to \\2 hours '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*to[\s]*(
                                            ' [.]?q[.]?[\s]*([0-9]+)[\s]*-[\s]*([0-9]+)[\s]*h[o]?[u]?[r]?[(]?[s]?[)]?[\s|.|,|;|-]+'] # q1 to 2 h          
 WORD2CHANGE[' daily '] = [' a[\s]*day ', ' [o|n|c|e]*[\s]*a[\s]*day ', ' [o|n|c|e]*[\s]*each[\s]*day ', ' [o|n|c|e]*[\s]*every[\s]*day ', ' [o|n|c|e]*[\s]*per[\s]*day ', 
                           ' once[\s]+daily ', ' 1 time[\s]+daily ', ' once[\s]*day ', ' 1 time[\s]+day ', ' every 1 day ', ' for 1 day', ' for a day ',
-                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ', ' q[\s]+daily ',
+                          ' q[.]?[\s]*day[\s|.|,|;|-]+', ' q[.]?[\s]*d[.]?[\s|,|;|-]+', ' q[.]?[\s]*dly[.]?[\s|,|;|-]+', ' qd[\*] ', ' q[\s]+daily ', ' a[\s]+daily ',
                           '/[\s]*day ', '/[\s]*d ', ' d ',                           
                           ' dailly ', 'dily', ' dly ', ' daiy ', ' dialy ', ' daoily ', ' dail ', 'dail;y ', ' daild ', ' daiily ', ' daliy '] # typos
 WORD2CHANGE[' every \\1 days '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*d[a]?[y]?[(]?[s]?[)]?[\s|.|,|;|\-]+'] # q2day(s)
@@ -195,8 +197,8 @@ TOD_LIST = ['morning','a.m.','breakfast',
             'midday','lunch',
             'afternoon','p.m.',
             'evening', 'dinner','bedtime'] # time of day
-UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'strip', 'scoop', 
-             'ring', 'patch', 'packet', 'unit', 'ampule', 'syringe', 'vial', 'pen', 'piece', 
+UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'strip', 'scoop', 'needle',
+             'ring', 'patch', 'packet', 'unit', 'ampule', 'syringe', 'vial', 'pen', 'piece', 'suppository',
              # 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
@@ -389,10 +391,15 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
     weekly = 0
     for f in FREQ:
         # time
-        times = re.findall('[0-9][0-9]?[:]?[0-9]?[0-9]?[\s]+p.m.', f) # timestamps, 10/09/2020
+        times = re.findall('[0-9]?[0-9][:][0-9][0-9][\s]+[a|p]?.m.', f) # timestamps, 7:00 p.m., 10/09/2020
         for t in times:
             t = re.sub('[\s]+', ' ', t)
             info.add(t)
+        times = re.findall('[0-9]?[0-9][\s]+[a|p]?.m.', f) # timestamps, 7 p.m., 10/09/2020
+        for t in times:
+            t = re.sub('[\s]+', ' ', t)
+            t = t[:-5]+':00'+t[-5:]
+            info.add(t)        
         # military time
         military_times = re.findall('[0-9]{4}', f) # find military time, 10/09/2020
         for t in military_times:
@@ -407,9 +414,9 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
                     afternoon = 1
             else:
                 if int(t[2:]) > 0:
-                    info.add(t[:2]+':'+t[2:]+' p.m.')
+                    info.add(t[:2]+':'+t[2:]+' a.m.')
                 else:
-                    info.add(t[:2]+' p.m.')                    
+                    info.add(t[:2]+' a.m.')                    
                 morning = 1
         for t in ['morning', 'breakfast', 'a.m.']:
             if t in f:
@@ -571,7 +578,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
     return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_DAYS_SUPPLY',\
+                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES',\
                  #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
@@ -593,37 +600,37 @@ RISK_QUERY = """SELECT id,
                        predicted_risk
                 FROM analytics_core.drug_dir_pv1_rx_risk
                 WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'"""
-DIRECTION_QUERY = """SELECT   ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
-                              docs.queue current_queue,
-                              doc_pres.id id,
-                              sig.prescription_id,
-                              sig.id sig_id,
-                              sig.line_number,
-                              sig.text sig_text,
-                              esc.directions escribe_directions,  
-                              esc.quantity as escribe_quantity,
-                              esc.days_supply as escribe_days_supply,
-                              esc.ndc,
-                              sig.quantity_per_dose,
-                              sig.units,
-                              sig.hoa_times,
-                              sig.quantity_per_day,
-                              sig.schedule_type,
-                              sig.period,
-                              sig.dow,
-                              doc_pres.med_name medication_description
+DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
+                     docs.queue current_queue,
+                     doc_pres.id id,
+                     sig.prescription_id,
+                     sig.id sig_id,
+                     sig.line_number,
+                     sig.text sig_text,
+                     esc.message_json:MedicationPrescribed.SigText::string ESCRIBE_DIRECTIONS,  -- Updated 2020-10-15 due to new doucpack_escribes table
+                     esc.message_json:MedicationPrescribed.Quantity.Value ESCRIBE_QUANTITY,     -- Updated 2020-10-15 due to new doucpack_escribes table
+                     esc.message_json:MedicationPrescribed.Note::string ESCRIBE_NOTES,           -- Updated 2020-10-15 due to new doucpack_escribes table
+                     esc.message_json:MedicationPrescribed.NDC NDC,                             -- Updated 2020-10-15 due to new doucpack_escribes table
+                     sig.quantity_per_dose,
+                     sig.units,
+                     sig.hoa_times,
+                     sig.quantity_per_day,
+                     sig.schedule_type,
+                     sig.period,
+                     sig.dow,
+                     doc_pres.med_name medication_description
                      FROM source_pillpack_core.docupack_prescriptions doc_pres
                      LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
                      LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
                      LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
-                     LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
+                     LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
                      WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
                      AND pres.created_at < CURRENT_TIMESTAMP()
                      AND sig.id IS NOT NULL
                      AND pres.rx_number IS NOT NULL
                      AND doc_pres.self_prescribed = false
                      AND docs.source = 'Escribe'
-                     AND esc.id is NOT NULL"""
+                     AND esc.id is NOT NULL """
 ###############################################################################
 
 ###############################################################################
@@ -633,8 +640,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', \
-              #'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
@@ -746,7 +752,7 @@ def main():
             results =  result.copy()
         else:
             results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_DAYS_SUPPLY'], how='outer')
+                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES'], how='outer')
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
@@ -772,7 +778,7 @@ def main():
        LINE_NUMBER: sigline number <br> \
        TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
        ESCRIBE_QUANTITY <br> \
-       ESCRIBE_DAYS_SUPPLY <br> \
+       ESCRIBE_NOTES <br> \
        FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
        DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
        PERIPHERAL_CHANGE: if Ture, there are changes <br> \
@@ -806,11 +812,14 @@ if __name__ == "__main__":
 #nm = pd.concat(nm_list, axis=0, ignore_index=True).drop_duplicates()  
 #
 
+#PATH = os.path.abspath(os.getcwd())+'/Results/'
 #results = {}
-#for i in range(1, 8):
-#    data = pd.read_csv(PATH+'Direction_Changes_2020-10-0'+str(i)+'.csv')
-#    nm = pd.read_csv(PATH+'Near_Misses_2020-10-0'+str(i)+'.csv')
-#    ss = pd.read_csv(PATH+'snapshots_2020-10-0'+str(i)+'.csv')
+#for i in range(9, 15):
+#    if len(str(i)) == 1:
+#        i = '0'+str(i)
+#    data = pd.read_csv(PATH+'Direction_Changes_2020-10-'+str(i)+'.csv')
+#    nm = pd.read_csv(PATH+'Near_Misses_2020-10-'+str(i)+'.csv')
+#    ss = pd.read_csv(PATH+'snapshots_2020-10-'+str(i)+'.csv')
 #    
 #    new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
 #    
@@ -824,7 +833,7 @@ if __name__ == "__main__":
 #        results = pd.concat([results, new], sort=False)
 #    
 #results[['ID','PRESCRIPTION_ID','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
-#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-0107.csv',index=False)
+#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-0814.csv',index=False)
 
 
 

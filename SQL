@@ -10,10 +10,10 @@ SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url
           sig.id sig_id,
           sig.line_number,
           sig.text sig_text,
-          esc.directions escribe_directions,  
-          esc.quantity as escribe_quantity,
-          esc.days_supply as escribe_days_supply,
-          esc.ndc,
+          esc.message_json:MedicationPrescribed.SigText::string ESCRIBE_DIRECTIONS,  -- Updated 2020-10-15 due to new doucpack_escribes table
+          esc.message_json:MedicationPrescribed.Quantity.Value ESCRIBE_QUANTITY,     -- Updated 2020-10-15 due to new doucpack_escribes table
+          esc.message_json:MedicationPrescribed.Note::string ESCRIBE_NOTES,           -- Updated 2020-10-15 due to new doucpack_escribes table
+          esc.message_json:MedicationPrescribed.NDC NDC,                             -- Updated 2020-10-15 due to new doucpack_escribes table
           sig.quantity_per_dose,
           sig.units,
           sig.hoa_times,
@@ -26,7 +26,7 @@ FROM source_pillpack_core.docupack_prescriptions doc_pres
 LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
 LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
 LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
-LEFT JOIN source_pillpack_core.escribes esc ON esc.docupack_prescription_id= doc_pres.id
+LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
 WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
         AND pres.created_at < CURRENT_TIMESTAMP()
         AND sig.id IS NOT NULL
