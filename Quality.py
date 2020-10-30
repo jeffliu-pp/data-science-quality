@@ -53,8 +53,8 @@ WORD2CHANGE[' through '] = [' thur ']
 WORD2CHANGE[' without '] = [' w/o ']
 WORD2CHANGE[' with '] = [' w/ ']
 WORD2CHANGE[' - '] = ['-']
-WORD2CHANGE[' subcutaneous '] = [' subcutaneously ']
-WORD2CHANGE[' intramuscular '] = [' intramuscularly ']
+WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' under the skin ']
+WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
