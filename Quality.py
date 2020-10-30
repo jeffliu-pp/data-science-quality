@@ -145,8 +145,8 @@ WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
-WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ']
-WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ']
+WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ']
+WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ', ' with every meal ', ' with each meal ']
 WORD2CHANGE[' with food '] = [' w food ']
 WORD2CHANGE[' shortness of breath '] = [' s[.]?o[.]?b[.]? ']
 # Time(s)
