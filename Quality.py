@@ -53,6 +53,8 @@ WORD2CHANGE[' through '] = [' thur ']
 WORD2CHANGE[' without '] = [' w/o ']
 WORD2CHANGE[' with '] = [' w/ ']
 WORD2CHANGE[' - '] = ['-']
+WORD2CHANGE[' subcutaneous '] = [' subcutaneously ']
+WORD2CHANGE[' intramuscular '] = [' intramuscularly ']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]*) '] # .5 --> 0.5
@@ -203,7 +205,7 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
              'morning', 'midday','afternoon','evening','bedtime',
-             'neuropathy', 'subcutaneously', 'intramuscularly']
+             'neuropathy', 'subcutaneous', 'intramuscular']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
