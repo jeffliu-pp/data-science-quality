@@ -131,7 +131,7 @@ WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' 
 WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
-WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst'] # breakfast(s)
+WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning meal[s]? '] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
 WORD2CHANGE[' with breakfast '] = [' w breakfast ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
@@ -202,7 +202,8 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              # 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
-             'morning', 'midday','afternoon','evening','bedtime']
+             'morning', 'midday','afternoon','evening','bedtime',
+             'neuropathy', 'subcutaneously', 'intramuscularly']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -237,6 +238,9 @@ fp['113'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST}}] + EVERY + TIME #
 fp['114'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['111'] # 2 (times) to 3 times weekly
 fp['115'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['112'] # 2 (times) to 3 times week
 fp['116'] = NUM + [{'LEMMA':{'IN':['time','times']+TIME_LIST},'OP':'?'}] + TO + fp['113'] # 2 (times) to 3 times every week
+fp['117'] = [{'LOWER':'up'},{'LOWER':'to'}] + fp['111']
+fp['118'] = [{'LOWER':'up'},{'LOWER':'to'}] + fp['112']
+fp['119'] = [{'LOWER':'up'},{'LOWER':'to'}] + fp['113']
 ## DOW Patterns
 fp['201'] = DOW + [{'LOWER':',','OP':'?'}] + [{'LEMMA':{'IN':DOW_LIST},'OP':'?'},{'LOWER':',','OP':'?'}]*5 + \
             [{'LOWER':'and','OP':'?'},{'LEMMA':{'IN':DOW_LIST},'OP':'?'}] # monday (,tuseday, and wednesday)
@@ -816,7 +820,7 @@ if __name__ == "__main__":
 
 #PATH = os.path.abspath(os.getcwd())+'/Results/'
 #results = {}
-#for i in range(9, 15):
+#for i in range(22, 30):
 #    if len(str(i)) == 1:
 #        i = '0'+str(i)
 #    data = pd.read_csv(PATH+'Direction_Changes_2020-10-'+str(i)+'.csv')
@@ -835,8 +839,15 @@ if __name__ == "__main__":
 #        results = pd.concat([results, new], sort=False)
 #    
 #results[['ID','PRESCRIPTION_ID','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
-#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-0814.csv',index=False)
+#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-2229.csv',index=False)
 
+
+#data = pd.read_csv(PATH+'snapshots_2020-10-16.csv')
+#for i in range(16, 23):
+#    new = pd.read_csv(PATH+'snapshots_2020-10-'+str(i)+'.csv')
+#    data = pd.concat([data, new], ignore_index=True)
+#data = data.drop_duplicates()    
+#data.to_csv('snapshots_2020-10-1622.csv')   
 
 
 #    ### Load Medication
