@@ -152,11 +152,11 @@ def main():
     for d in range(1,8):
         TIME2 = (pd.to_datetime('now') - timedelta(days=d)).date().isoformat()
         TIME1 = (pd.to_datetime('now') - timedelta(days=d+1)).date().isoformat()
-        data = pd.read(PATH+'/Results/results_'+TIME2+'.csv' )
-        ss = pd.read(PATH+'/Results/snapshots_'+TIME2+'.csv')
+        data = pd.read_csv(PATH+'/Results/results_'+TIME2+'.csv' )
+        ss = pd.read_csv(PATH+'/Results/snapshots_'+TIME2+'.csv')
         print('Running SQL to pull near misses from Snowflake...') 
         nm = _SQL(_QUERY(TIME1, TIME2))                          
-        nm.columns = data.columns.str.upper()
+        nm.columns = nm.columns.str.upper()
         new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
         new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
         new = new.rename(columns={'SIG_TEXT_x':'NEW_SIG_TEXT','SIG_TEXT_y':'ORIGINAL_SIG_TEXT', 'TOTAL_LINE_COUNT_x': 'TOTAL_LINE_COUNT'})
@@ -172,21 +172,16 @@ def main():
        'Hey team, <br><br>\
        Attached please find the direction change KPI from {0} to {1}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
        Key Columns: <br> \
-       DOCUPACK_URL: link to document <br> \
-       CURRENT_QUEUE: Archive, ExistingPatients <br> \
        ID: docupack prescriptions id <br> \
        PRESCRIPTION_ID <br> \
-       MEDICATION_DESCRIPTION <br> \
-       ESCRIBE_DIRECTIONS <br> \
-       SIG_TEXT <br> \
-       LINE_NUMBER: sigline number <br> \
+              LINE_NUMBER: sigline number <br> \
        TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
-       ESCRIBE_QUANTITY <br> \
-       ESCRIBE_NOTES <br> \
-       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
+       DIRECTIONS: escribe directions <br> \
+       NEW_SIG_TEXT: correct sig text after RPH check <br> \
+       ORIGINAL_SIG_TEXT: original sig text before correction <br> \
        DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
-       PERIPHERAL_CHANGE: if Ture, there are changes <br> \
-       PREDICTED_RISK: risk of direction changes from ML model, high value means high risk <br><br>\
+       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
+       PERIPHERAL_CHANGE: if Ture, there are changes <br><br>\
        Best, <br>data_science_bot'.format(START_TIME, END_TIME),
        PATH+OUTPUT)
     return results
