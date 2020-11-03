@@ -119,7 +119,7 @@ class EmailClient:
         """.format(subject, body)
         return body_html
 
-    def send_email(self, recipients, subject, body, attachment=None, charset="utf-8"):
+    def send_email(self, recipients, subject, body, attachment, start_time, end_time, charset="utf-8"):
         body_html = self.construct_email(subject, body)
         msg = MIMEMultipart()
         msg['Subject'] = subject
@@ -131,7 +131,7 @@ class EmailClient:
         if attachment:
             # attachment
             part = MIMEApplication(open(attachment, 'rb').read())
-            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes_'+pd.to_datetime('now').date().isoformat()+'.csv')
+            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes_KPI_'+start_time+'_'+end_time+'.csv')
             msg.attach(part)
         response = self.client.send_raw_email(
             Source=msg['From'],
@@ -183,7 +183,7 @@ def main():
        FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
        PERIPHERAL_CHANGE: if Ture, there are changes <br><br>\
        Best, <br>data_science_bot'.format(START_TIME, END_TIME),
-       PATH+OUTPUT)
+       PATH+OUTPUT, START_TIME, END_TIME)
     return results
 
 if __name__ == "__main__":
