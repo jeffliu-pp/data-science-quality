@@ -42,6 +42,7 @@ def _QUERY(TIME1, TIME2):
                doc_pres.id id,
                sig.prescription_id,
                sig.id sig_id,
+               pres.created_at,
                sig.line_number,
                sig.text sig_text,
                esc.message_json:MedicationPrescribed.SigText::string directions,  -- Updated 2020-10-15 due to new doucpack_escribes table
@@ -160,11 +161,12 @@ def main():
         new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
         new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
         new = new.rename(columns={'SIG_TEXT_x':'NEW_SIG_TEXT','SIG_TEXT_y':'ORIGINAL_SIG_TEXT', 'TOTAL_LINE_COUNT_x': 'TOTAL_LINE_COUNT'})
+        new['REPORT_ISSUED_DATE'] = TIME2
         if len(results) == 0:
             results = new
         else:
             results = pd.concat([results, new], sort=False)
-    results[['ID','PRESCRIPTION_ID','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
+    results[['ID','PRESCRIPTION_ID','CREATED_AT','REPORT_ISSUED_DATE','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
              'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+OUTPUT,index=False)
     email = EmailClient()
     email.send_email(EMAIL_LIST,
@@ -188,3 +190,24 @@ def main():
 
 if __name__ == "__main__":
     results = main()
+
+
+
+#import os
+#import pandas as pd
+#from datetime import datetime, timedelta 
+#PATH = os.path.abspath(os.getcwd())+'/Results/'
+#results = []
+#for i in range(1,71):
+#    DATE = (pd.to_datetime('now') - timedelta(days=i)).date().isoformat()
+#    data = pd.read_csv(PATH+'Direction_Changes_'+DATE+'.csv')
+#    data['DATE'] = DATE
+#    if i == 1:
+#        results = data.copy()
+#    else:
+#        results = pd.concat([results, data], ignore_index=True, sort=False)
+#        
+#results = results[['DATE','ID','PRESCRIPTION_ID','TOTAL_LINE_COUNT','CURRENT_QUEUE']]
+#results = results.drop_duplicates()
+#results.to_csv(PATH+'results.csv',index=False)
+

@@ -398,6 +398,10 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         dow[d] = 0
     weekly = 0
     for f in FREQ:
+        # hours
+        for t in ['hour', 'hours']: # every 4 hours
+            if t in f:
+                info.add(f)
         # time
         times = re.findall('[0-9]?[0-9][:][0-9][0-9][\s]+[a|p]?.m.', f) # timestamps, 7:00 p.m., 10/09/2020
         for t in times:
@@ -446,6 +450,10 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
                   'every day', 'every 1 day','everyday', 'each day', 'day', 'days', 'daily']:
             if t in f:
                 daily = max(1, daily)
+        for t in ['every 2 days','every other day']:
+            if t in f:
+                daily = 0
+                info.add('every 2 days')             
         for d in DOW_LIST:
             if d in f:
                 dow[d] = 1
@@ -457,11 +465,12 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         for t in ['every 7 days', 'every 7 day', 
                   'every week', 'every 1 week','everyweek', 'each week', 'week', 'weeks', 'weekly']:
             if t in f:
-                weekly = max(1, weekly)
                 daily = 0
+                weekly = max(1, weekly)
         for t in ['every 14 days', 'every 2 weeks', 'every other week']:
             if t in f:
                 daily = 0
+                weekly = 0
                 info.add('every 2 weeks')                              
     daily = max(daily, morning + noon + afternoon + evening)
     if daily == 1:
