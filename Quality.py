@@ -407,11 +407,12 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         for t in times:
             t = re.sub('[\s]+', ' ', t)
             info.add(t)
-        times = re.findall('[0-9]?[0-9][\s]+[a|p]?.m.', f) # timestamps, 7 p.m., 10/09/2020
-        for t in times:
-            t = re.sub('[\s]+', ' ', t)
-            t = t[:-5]+':00'+t[-5:]
-            info.add(t)        
+        if len(times) == 0:
+            times = re.findall('[0-1]?[0-9][\s]+[a|p]?.m.', f) # timestamps, 7 p.m., 10/09/2020
+            for t in times:
+                t = re.sub('[\s]+', ' ', t)
+                t = t[:-5]+':00'+t[-5:]
+                info.add(t)        
         # military time
         military_times = re.findall('[0-9]{4}', f) # find military time, 10/09/2020
         for t in military_times:
