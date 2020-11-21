@@ -482,6 +482,8 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
         info.add('1 time weekly')
     elif weekly > 1:
         info.add(str(weekly) + ' times weekly')
+    if len(info) == 0:
+        info = FREQ
     return info    
 ###############################################################################
 
