@@ -42,9 +42,11 @@ WORD2CHANGE[' ml '] = ['[\s]*ml[(]?[s]?[)]? ', '[\s]*milliliter[(]?[s]?[)]? '] #
 WORD2CHANGE[' meq '] = [' milliequivalent[(]?[s]?[)]? ', ' meq[(]?[s]?[)]? '] 
 WORD2CHANGE[' po \\1 '] = ['po(q[a-z]{2})', 'po(q[d|w]{1})', 'po([b|t|q]{1}id)'] # poqam, poqhs, poqd, poqw, pobid, potid, poqid
 WORD2CHANGE[' ac hs '] = [' a[.]?c[.]?h[.]?s[.]? '] 
+WORD2CHANGE[' orally dissolving tablet '] = ['[\s|.|,|;|-]+odt '] 
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
 WORD2CHANGE[' as needed ' ] = [' p[.]?r[.]?n[.]? ']
+WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ']
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
 WORD2CHANGE[' before '] = [' prior to ']
@@ -83,7 +85,7 @@ WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)'
 ### Medication Units
 WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
-                           ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' DOT ', ' tablelet ', ' tablyes '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+                           ' table ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' tablelet ', ' tablyes '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', 
                             ' capsul ', ' cpaules ', ' capsulse '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
@@ -205,7 +207,7 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
              'morning', 'midday','afternoon','evening','bedtime',
-             'neuropathy', 'subcutaneous', 'intramuscular']
+             'neuropathy', 'subcutaneous', 'intramuscular', 'stomach']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
