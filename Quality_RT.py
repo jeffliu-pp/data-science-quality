@@ -3,7 +3,7 @@
 """
 Created on Thu Jul 30 16:22:12 2020
 
-Quality Projects: Code for Weekly Auditing 
+Quality Projects: Code for Real-Time Auditing 
 
 @author: liujianf
 """
@@ -387,8 +387,7 @@ def _EXTRACT(text, matcher):
 
 ###############################################################################
 # Modify Frequency and Compare
-def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
-    FREQ = ROW[NAME]
+def _MODIFY_FREQ(FREQ, STRENGTH):
     morning = 0
     noon = 0
     afternoon = 0
@@ -492,8 +491,7 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
 
 ###############################################################################
 # Modify Dose and Compare
-def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
-    DOSE = ROW[NAME]
+def _MODIFY_DOSE(DOSE, STRENGTH):
     info = set()
     a = []
     b = []
@@ -513,31 +511,27 @@ def _MODIFY_DOSE(ROW, NAME, MEDICATIONS):
                     else:
                         a[j] = float(a[j])
                     info.add(a[j])
-    if len(info) == 0: # if no table informaiton is found, then use strength information
-        INDEX = MEDICATIONS.loc[MEDICATIONS.MEDICATION_DESCRIPTION==ROW['MEDICATION_DESCRIPTION']].index
-        if len(INDEX) == 1:
-            STRENGTH = MEDICATIONS.loc[INDEX[0],'STRENGTH']
-            if len(STRENGTH) > 0:
-                for s in STRENGTH:
-                    for d in DOSE:
-                        if ('gr' in s and 'gr' in d) or ('mg' in s and 'mg' in d) or \
-                        ('mcg' in s and 'mcg' in d) or ('ml' in s and 'ml' in d) or \
-                        ('meq' in s and 'meq' in d) or ('unit' in s and 'unit' in d):
-                            a = re.findall('[0-9]+[.]?[0-9]*',d) # dose in gr/mg/mcg/ml
-                            b = re.findall('[0-9]+[.]?[0-9]*',s) # strength in gr/mg/mcg/ml
-                        if len(a) > 0 and len(b) == 1:
-                            for i in range(len(a)):            
-                                c = float(a[i])/float(b[0]) # count
-                                if c.is_integer():
-                                    c = int(c) # convert float to integer
-                                info.add(c)
+    if len(info) == 0: # if no dose informaiton is found, then use strength information
+        if len(STRENGTH) > 0:
+            for s in STRENGTH:
+                for d in DOSE:
+                    if ('gr' in s and 'gr' in d) or ('mg' in s and 'mg' in d) or \
+                    ('mcg' in s and 'mcg' in d) or ('ml' in s and 'ml' in d) or \
+                    ('meq' in s and 'meq' in d) or ('unit' in s and 'unit' in d):
+                        a = re.findall('[0-9]+[.]?[0-9]*',d) # dose in gr/mg/mcg/ml
+                        b = re.findall('[0-9]+[.]?[0-9]*',s) # strength in gr/mg/mcg/ml
+                    if len(a) > 0 and len(b) == 1:
+                        for i in range(len(a)):            
+                            c = float(a[i])/float(b[0]) # count
+                            if c.is_integer():
+                                c = int(c) # convert float to integer
+                            info.add(c)
     return info
 ###############################################################################    
 
 ############################################################################### 
 # Modify Peripheral and Compare
-def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
-    PERI = ROW[NAME]
+def _MODIFY_PERI(PERI, STRENGTH):
     info = set()
     for p in PERI:
         find = False
@@ -567,7 +561,7 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
 ###############################################################################
 
 ###############################################################################
-def _DETECTION(DATA, TYPE, MEDICATIONS):
+def _DETECTION(DIRECTION, SIG_TEXT, TYPE, STRENGTH):
     if TYPE == 'DOSE':
         MATCHER = dose_matcher
         MODIFY = _MODIFY_DOSE
@@ -580,674 +574,58 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     else:
         print('Incorrect Type: ', TYPE)
         exit(1)         
+    result = 0
     print('******************************')
     print(TYPE+' Change Detection Starts...')
     # Step 2. 
-    print('Step 2. Input Lines: ', len(DATA))
-    DATA[TYPE+'_DIRECTIONS'] = DATA['NEW_DIRECTIONS'].apply(_EXTRACT, matcher=MATCHER)
-    DATA[TYPE+'_SIG_TEXT'] = DATA['NEW_SIG_TEXT'].apply(_EXTRACT, matcher=MATCHER)
-    DATA = DATA.loc[(DATA[TYPE+'_DIRECTIONS'] != DATA[TYPE+'_SIG_TEXT'])|(DATA[TYPE+'_DIRECTIONS']==set())].copy()
+    print('Step 2')
+    NEW_DIRECTION = _EXTRACT(DIRECTION, MATCHER)
+    NEW_SIG_TEXT = _EXTRACT(SIG_TEXT, MATCHER)
+    if NEW_DIRECTION != NEW_SIG_TEXT or NEW_DIRECTION == set():
     # Step 3. 
-    print('Step 3. Input Lines: ', len(DATA))
-    DATA['NEW_'+TYPE+'_DIRECTIONS'] = DATA.apply(MODIFY, axis=1, NAME=TYPE+'_DIRECTIONS', MEDICATIONS=MEDICATIONS)
-    DATA['NEW_'+TYPE+'_SIG_TEXT'] = DATA.apply(MODIFY, axis=1, NAME=TYPE+'_SIG_TEXT', MEDICATIONS=MEDICATIONS)
-    DATA[TYPE+'_CHANGE'] = (DATA['NEW_'+TYPE+'_DIRECTIONS'] != DATA['NEW_'+TYPE+'_SIG_TEXT'])
-    if TYPE != 'PERIPHERAL':
-        DATA = DATA.loc[(DATA[TYPE+'_CHANGE']==True)|(DATA['NEW_'+TYPE+'_DIRECTIONS']==set())].copy()
-    else:
-        DATA = DATA.loc[DATA[TYPE+'_CHANGE']==True].copy()
-    print(TYPE+' Change Detection Ends')
-    print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
-    # Return
-    return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES',\
-                 #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
-                TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
+        print('Step 3')
+        NEW_DIRECTION = MODIFY(NEW_DIRECTION, STRENGTH)
+        NEW_SIG_TEXT = MODIFY(NEW_SIG_TEXT, STRENGTH)
+        if TYPE != 'PERIPHERAL': 
+            if NEW_DIRECTION != NEW_SIG_TEXT or NEW_DIRECTION == set():
+                result = 1
+        else:
+            if NEW_DIRECTION != NEW_SIG_TEXT:
+                result = 1
+    return result
 ###############################################################################
 
 ###############################################################################
-# SQL
-def _SQL(QUERY):
-    import data_science_tools as dst
-    snow_eng = dst.snowflake_prod
-    snow_conn = snow_eng.connect()
-    data = pd.read_sql(QUERY, con=snow_conn)
-    snow_conn.close()
-    snow_eng.dispose()
-    return data
-
-RISK_QUERY = """SELECT id,
-                       prescription_id,
-                       medication_description,
-                       predicted_risk
-                FROM analytics_core.drug_dir_pv1_rx_risk
-                WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'"""
-DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
-                     docs.queue current_queue,
-                     doc_pres.id id,
-                     sig.prescription_id,
-                     sig.id sig_id,
-                     sig.line_number,
-                     sig.text sig_text,
-                     esc.message_json:MedicationPrescribed.SigText::string ESCRIBE_DIRECTIONS,  -- Updated 2020-10-15 due to new doucpack_escribes table
-                     esc.message_json:MedicationPrescribed.Quantity.Value ESCRIBE_QUANTITY,     -- Updated 2020-10-15 due to new doucpack_escribes table
-                     esc.message_json:MedicationPrescribed.Note::string ESCRIBE_NOTES,           -- Updated 2020-10-15 due to new doucpack_escribes table
-                     esc.message_json:MedicationPrescribed.NDC NDC,                             -- Updated 2020-10-15 due to new doucpack_escribes table
-                     sig.quantity_per_dose,
-                     sig.units,
-                     sig.hoa_times,
-                     sig.quantity_per_day,
-                     sig.schedule_type,
-                     sig.period,
-                     sig.dow,
-                     doc_pres.med_name medication_description
-                     FROM source_pillpack_core.docupack_prescriptions doc_pres
-                     LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
-                     LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
-                     LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
-                     LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
-                     WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '24.5 hour' -- Use for prediction. Intentionally a half hour is added in case the code runs with some delays, we do not want to miss any prescription
-                     AND pres.created_at < CURRENT_TIMESTAMP()
-                     AND sig.id IS NOT NULL
-                     AND pres.rx_number IS NOT NULL
-                     AND doc_pres.self_prescribed = false
-                     AND docs.source = 'Escribe'
-                     AND ESCRIBE_DIRECTIONS is NOT NULL"""
-###############################################################################
-
-###############################################################################
-# Send email from SES that the job failed to run
-import boto3
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-
-EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
-
-class EmailClient:
-    def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
-        self.sender = sender
-        self.client = boto3.client('ses',region_name=region)
-
-    def construct_email(self, subject, body):
-        body_html = """
-        <html>
-        <head></head>
-        <body>
-          <h1>{0}</h1>
-          <p>{1}</p>
-        </body>
-        </html>
-        """.format(subject, body)
-        return body_html
-
-    def send_email(self, recipients, subject, body, attachment=None, charset="utf-8"):
-        body_html = self.construct_email(subject, body)
-        msg = MIMEMultipart()
-        msg['Subject'] = subject
-        msg['From'] = self.sender
-        msg['To'] = ', '.join(recipients)
-        # message body
-        part = MIMEText(body_html.encode(charset), 'html', charset)
-        msg.attach(part)
-        if attachment:
-            # attachment
-            part = MIMEApplication(open(attachment, 'rb').read())
-            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes_'+pd.to_datetime('now').date().isoformat()+'.csv')
-            msg.attach(part)
-        response = self.client.send_raw_email(
-            Source=msg['From'],
-            Destinations=recipients,
-            RawMessage={'Data': msg.as_string()}
-        )
-###############################################################################
-
-###############################################################################
-#import datetime as dt
-#def KPI(DAYS=7):
-#    PATH = os.path.abspath(os.getcwd())+'/Results/'
-#    TIME = pd.to_datetime('now').date()
-#    data_list = []
-#    for i in range(DAYS):
-#        TIME = TIME - dt.timedelta(days=1)
-#        data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')\
-#        [['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
-#        data_list.append(data)
-#    data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
-#    del(data_list)        
-###############################################################################
-
-###############################################################################
-def main():
-    # Path and Filename
-    PATH = os.path.abspath(os.getcwd())#+'/Data/'
-    #TIME = '08272020'
-    TIME = pd.to_datetime('now').date().isoformat()
-    INPUT_RISK = '/Data/predicted_risk_'+TIME+'.csv'
-    INPUT_DIRECTION = '/Data/direction_sigline_'+TIME+'.csv'
-    OUTPUT = '/Results/results_'+TIME+'.csv'    
-    ### Load Data
-    print('******************************')
-    print('Loading Predicted Risk')
-    try:    
-        risk = pd.read_csv(PATH+INPUT_RISK) # NDC in string type, some NDCs start with 0's
-    except:
-        print('Running SQL to pull predicted risk from Snowflake...') 
-        risk = _SQL(RISK_QUERY)
-    risk.columns = risk.columns.str.upper()
-    print('Loading Directions')
-    try:    
-        data = pd.read_csv(PATH+INPUT_DIRECTION) # NDC in string type, some NDCs start with 0's
-    except:
-        print('Running SQL to pull directions from Snowflake...') 
-        data = _SQL(DIRECTION_QUERY)                         
-    data.columns = data.columns.str.upper()
-    data = data.drop_duplicates()  # remove duplicated records   
-    data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
-    data = data.sort_values(by=['ID','LINE_NUMBER'], ascending=[True,True], na_position='last')
-    data.to_csv(PATH+'/Results/snapshots_'+TIME+'.csv', index=False)
-    data['SIG_TEXT'] = data.groupby(['ID'])['SIG_TEXT'].transform(lambda x: ' '.join(x)) # combine sig_text in multi-line prescriptions, 10/09/2020
+def main(ESCRIBE_DIRECTION, SIG_TEXT, MEDICATION_DESCRIPTION):
+    """
+    Inputs: escribe text: ESCRIBE_DIRECTION
+            sigline text: SIG_TEX
+            medication description: MEDICATION_DESCRIPTON
+    Outputs:
+            if there is a frequency change
+            if there is a dose change
+            if there is a peripheral information change
+    """
+    
     # Extract Medication Strength Information
     print('******************************')
-    print('Extracing Medication Strength Infromation')
-    medications = data[['MEDICATION_DESCRIPTION']].fillna('') ### Some NDC is incorrect!!! 'supply!!!'
-    medications = medications.drop_duplicates()
-    medications['NEW_MEDICATION_DESCRIPTION'] = medications['MEDICATION_DESCRIPTION'].apply(_REWORD, remove_bracket=True)
-    medications['STRENGTH'] = medications['NEW_MEDICATION_DESCRIPTION'].apply(_EXTRACT, matcher=dose_matcher)
+    print('Extracing Medication Strength Infromation')  
+    NEW_MEDICATION_DESCRIPTION = _REWORD(MEDICATION_DESCRIPTION, remove_bracket=True)
+    STRENGTH = _EXTRACT(NEW_MEDICATION_DESCRIPTION, matcher=dose_matcher)
     ### Step 0. Convert Original Directions and Sigline Texts and Extract Strength Inforamtion
     print('******************************')
     print('Step 0. Converting to Standard Format')
     # Convert Escribe Directions and Sigline Texts
-    data['NEW_DIRECTIONS'] = data['ESCRIBE_DIRECTIONS'].apply(_REWORD)
-    data['NEW_SIG_TEXT'] = data['SIG_TEXT'].apply(_REWORD)
+    NEW_DIRECTION = _REWORD(ESCRIBE_DIRECTION)
+    NEW_SIG_TEXT = _REWORD(SIG_TEXT)
     ### Step 1. Compare New Direcitons and Sigline Text
     print('******************************')
-    print('Step 1. Input Lines: ', len(data))
-    data['SAME_DIRECTIONS'] = (data['NEW_DIRECTIONS'] == data['NEW_SIG_TEXT'])
-    data = data[data['SAME_DIRECTIONS']==False]
-    print('Detect ' + str(len(data)) + ' Direction Changes')    
+    print('Step 1')
+    if NEW_DIRECTION == NEW_SIG_TEXT:
+        result = 0
+    else: 
     ### Step 2 and 3. Direction Change Detection
-    results = pd.DataFrame()
-    for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
-        result = _DETECTION(data.loc[:], TYPE, medications).copy()
-        if len(results) == 0:
-            results =  result.copy()
-        else:
-            results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES'], how='outer')
-    ### Save and Return
-    results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
-    results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
-    results = results.sort_values(by=['TOTAL_LINE_COUNT','CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True,True,False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
-    # Remove Lines with 'pen needle' in ESCRIBE_DIRECTIONS and 'topical' in SIG_TEXT while only missing does information, this is requested by Colin on 09/18/2020 to reduce false positives
-    results = results[~((results.ESCRIBE_DIRECTIONS.str.contains(pat='pen needle',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
-    results = results[~((results.SIG_TEXT.str.contains(pat='topical',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
-    # Save as a Local File
-    results.to_csv(PATH+OUTPUT, index=False)
-    email = EmailClient()
-    email.send_email(EMAIL_LIST,
-       'Direction Changes ' + TIME,
-       'Hey team, <br><br>\
-       Attached please find the direction changes on {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
-       Key Columns: <br> \
-       DOCUPACK_URL: link to document <br> \
-       CURRENT_QUEUE: Archive, ExistingPatients <br> \
-       ID: docupack prescriptions id <br> \
-       PRESCRIPTION_ID <br> \
-       MEDICATION_DESCRIPTION <br> \
-       ESCRIBE_DIRECTIONS <br> \
-       SIG_TEXT <br> \
-       LINE_NUMBER: sigline number <br> \
-       TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
-       ESCRIBE_QUANTITY <br> \
-       ESCRIBE_NOTES <br> \
-       DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
-       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
-       PERIPHERAL_CHANGE: if Ture, there are changes <br> \
-       PREDICTED_RISK: risk of direction changes from ML model, high value means high risk <br><br>\
-       Best, <br>data_science_bot'.format(TIME),
-       PATH+OUTPUT)
-    #results[['ID','PRESCRIPTION_ID','DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION',DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE','LINE_NUMBER','TOTAL_LINE_COUNT']].to_csv(PATH+OUTPUT, index=False)
-    return results
-
-if __name__ == "__main__":
-    results = main()
-
-
-#
-#import datetime as dt
-#PATH = os.path.abspath(os.getcwd())+'/Results/'
-#TIME = pd.to_datetime('now').date()
-#data_list = []
-#for i in range(DAYS):
-#    TIME = TIME - dt.timedelta(days=1)
-#    data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')\
-#        [['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
-#    data_list.append(data)
-#data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
-#
-#
-#nm_list = []
-#for i in range(1,10):
-#    nm = pd.read_csv(PATH+'Near_Misses_2020-09-0'+str(i)+'.csv')
-#    nm_list.append(nm)
-#nm = pd.concat(nm_list, axis=0, ignore_index=True).drop_duplicates()  
-#
-
-#PATH = os.path.abspath(os.getcwd())+'/Results/'
-#results = {}
-#for i in range(22, 30):
-#    if len(str(i)) == 1:
-#        i = '0'+str(i)
-#    data = pd.read_csv(PATH+'Direction_Changes_2020-10-'+str(i)+'.csv')
-#    nm = pd.read_csv(PATH+'Near_Misses_2020-10-'+str(i)+'.csv')
-#    ss = pd.read_csv(PATH+'snapshots_2020-10-'+str(i)+'.csv')
-#    
-#    new = nm.merge(ss, on=['ID','PRESCRIPTION_ID'], how='left')
-#    
-#    new = new.merge(data, on=['ID','PRESCRIPTION_ID'], how='left')
-#    #print(len(nm), len(new[new.TOTAL_LINE_COUNT.notnull()]))
-#    
-#    new = new.rename(columns={'SIG_TEXT_x':'NEW_SIG_TEXT','SIG_TEXT_y':'ORIGINAL_SIG_TEXT', 'TOTAL_LINE_COUNT_x': 'TOTAL_LINE_COUNT'})
-#    if len(results) == 0:
-#        results = new
-#    else:
-#        results = pd.concat([results, new], sort=False)
-#    
-#results[['ID','PRESCRIPTION_ID','LINE_NUMBER','TOTAL_LINE_COUNT', 'DIRECTIONS', 'NEW_SIG_TEXT','ORIGINAL_SIG_TEXT',
-#         'DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].to_csv(PATH+'KPI-2020-10-2229.csv',index=False)
-
-
-#data = pd.read_csv(PATH+'snapshots_2020-10-16.csv')
-#for i in range(16, 23):
-#    new = pd.read_csv(PATH+'snapshots_2020-10-'+str(i)+'.csv')
-#    data = pd.concat([data, new], ignore_index=True)
-#data = data.drop_duplicates()    
-#data.to_csv('snapshots_2020-10-1622.csv')   
-
-
-#    ### Load Medication
-#    try:
-#        medications = pd.read_csv(PATH+'medications_new.csv', dtype={'ndc':str}) # NDC in string type, some NDCs start with 0's
-#    except:
-#        print('Running SQL to pull medications from Snowflake...')
-#        medications = _SQL(MEDICATION_QUERY)        
-#    medications.columns = medications.columns.str.upper()
-#    medications = medications.fillna('')
-##    medications = medications.groupby('NDC').max().reset_index()
-#    def _DESC(ROW):
-#        return str(ROW['DESCRIPTION']) + ' ' + str(ROW['GSDD_DESC']) # combine two columns related to drug descriptions
-#    if 'STRENGTH' in medications.columns:
-#        medications.loc[medications.STRENGTH=='set()','STRENGTH'] = "{}"
-#        medications['STRENGTH'] = medications['STRENGTH'].apply(ast.literal_eval)
-#    else:
-#        medications['DRUG_DESCRIPTION'] = medications.apply(_DESC, axis=1)
-#        medications['DRUG_DESCRIPTION'] = medications['DRUG_DESCRIPTION'].apply(_REWORD)
-#        medications['STRENGTH'] = medications['DRUG_DESCRIPTION'].apply(_EXTRACT, matcher=dose_matcher)
-
-###############################################################################
-## Dose Change Detection
-# Step D-2. Get Frequency and Compare
-#print('Step 2: ', len(data))
-#data['DOSE_DIRECTIONS'] = data['NEW_DIRECTIONS'].apply(_EXTRACT, matcher=dose_matcher)
-#data['DOSE_SIG_TEXT'] = data['NEW_SIG_TEXT'].apply(_EXTRACT, matcher=dose_matcher)
-#data['SAME_DOSE'] = (data['DOSE_DIRECTIONS'] == data['DOSE_SIG_TEXT'])
-#data = data[(data['SAME_DOSE']==False)|(data['DOSE_DIRECTIONS']==set())]
-
-# Step D-3. Compare Modified 
-#print('Step 3: ', len(data))
-#data['NEW_DOSE_DIRECTIONS'] = data.apply(_MODIFY_DOSE, axis=1, NAME='DOSE_DIRECTIONS')
-#data['NEW_DOSE_SIG_TEXT'] = data.apply(_MODIFY_DOSE, axis=1, NAME='DOSE_SIG_TEXT')
-#data['SAME_NEW_DOSE'] = (data['NEW_DOSE_DIRECTIONS'] == data['NEW_DOSE_SIG_TEXT'])
-#data = data[(data['SAME_NEW_DOSE']==False)|(data['NEW_DOSE_DIRECTIONS']==set())]
-
-# Save
-#print('Changes/Missings: ', len(data))
-#x = data[['NEW_DIRECTIONS','DIRECTIONS','NEW_SIG_TEXT','SIG_TEXT','DOSE_DIRECTIONS','DOSE_SIG_TEXT','SAME_DOSE',
-#          'NEW_DOSE_DIRECTIONS','NEW_DOSE_SIG_TEXT','SAME_NEW_DOSE']]
-#x.to_csv(OUTPUT, index=False)
-###############################################################################
-
-################################################################################
-#### FREQUENCY
-## Step 2. Get Frequency and Compare
-#print('Step 2: ', len(data))
-#data['FREQ_DIRECTIONS'] = data['NEW_DIRECTIONS'].apply(_EXTRACT, matcher=freq_matcher)
-#data['FREQ_SIG_TEXT'] = data['NEW_SIG_TEXT'].apply(_EXTRACT, matcher=freq_matcher)
-#data['SAME_FREQ'] = (data['FREQ_DIRECTIONS'] == data['FREQ_SIG_TEXT'])
-#data = data[(data['SAME_FREQ']==False)|(data['FREQ_DIRECTIONS']==set())]
-#
-## Step 3. Compare Modified 
-#print('Step 3: ', len(data))
-#data['NEW_FREQ_DIRECTIONS'] = data['FREQ_DIRECTIONS'].apply(_MODIFY_FREQ)
-#data['NEW_FREQ_SIG_TEXT'] = data['FREQ_SIG_TEXT'].apply(_MODIFY_FREQ)
-#data['SAME_NEW_FREQ'] = (data['NEW_FREQ_DIRECTIONS'] == data['NEW_FREQ_SIG_TEXT'])
-#data = data[(data['SAME_NEW_FREQ']==False)|(data['NEW_FREQ_DIRECTIONS']==set())]
-
-#x = data[data.TOTAL_LINE_COUNT==1]
-#y = x[(x.PERI_DIRECTIONS != set())|(x.PERI_SIG_TEXT != set())]
-
-#data.to_csv(PATH+'direction_sigline_500K_PS3.csv',index=False)
-#
-## Save Results
-#print('Changes/Missings: ', len(data))
-#x = data[['NEW_DIRECTIONS','DIRECTIONS','NEW_SIG_TEXT','SIG_TEXT','FREQ_DIRECTIONS','FREQ_SIG_TEXT','SAME_FREQ',
-#          'NEW_FREQ_DIRECTIONS','NEW_FREQ_SIG_TEXT','SAME_NEW_FREQ']]
-#x.to_csv(OUTPUT, index=False)
-################################################################################
-
-################################################################################
-#### PERIPHERAL
-## Step 2. Get Peripheral and Compare
-#print('Step 2: ', len(data))
-#data['PERI_DIRECTIONS'] = data['NEW_DIRECTIONS'].apply(_EXTRACT, matcher=peri_matcher)
-#data['PERI_SIG_TEXT'] = data['NEW_SIG_TEXT'].apply(_EXTRACT, matcher=peri_matcher)
-#data['SAME_PERI'] = (data['PERI_DIRECTIONS'] == data['PERI_SIG_TEXT'])
-#data = data[(data['SAME_PERI']==False)|(data['PERI_DIRECTIONS']==set())]
-#
-## Step 3. Compare Modified 
-#print('Step 3: ', len(data))
-#data['NEW_PERI_DIRECTIONS'] = data['PERI_DIRECTIONS'].apply(_MODIFY_PERI)
-#data['NEW_PERI_SIG_TEXT'] = data['PERI_SIG_TEXT'].apply(_MODIFY_PERI)
-#data['SAME_NEW_PERI'] = (data['NEW_PERI_DIRECTIONS'] == data['NEW_PERI_SIG_TEXT'])
-#data = data[(data['SAME_NEW_PERI']==False)|(data['NEW_PERI_DIRECTIONS']==set())]
-#
-## Save Results
-#print('Changes/Missings: ', len(data))
-#x = data[['NEW_DIRECTIONS','DIRECTIONS','NEW_SIG_TEXT','SIG_TEXT','PERI_DIRECTIONS','PERI_SIG_TEXT','SAME_PERI',
-#          'NEW_PERI_DIRECTIONS','NEW_PERI_SIG_TEXT','SAME_NEW_PERI']]
-#x.to_csv(OUTPUT, index=False)
-################################################################################
-
-
-
-###############################################################################
-# Patterns for Dose
-#dp1 = [{'POS':'NUM'},{'LOWER':{'IN':['tablets','tablet']},'POS':'NOUN'}] # 1 tablet
-#dp2 = [{'POS':'VERB'}]+dp1 # take 1 tablet
-#dp3 = [{'POS':'NUM'},{'LOWER':{'IN':['to', 'or']}}]+dp1 # 1 to 2 tablets
-#dp4 = [{'POS':'VERB'}]+dp3 # take 1 to 2 tablets
-#m_tool.add('DOSE', None, dp1, dp2, dp3, dp4)
-###############################################################################
-
-
-#
-#if 'DOSE_DIRECTIONS' in data.columns and 'DOSE_SIG_TEXT' in data.columns:
-#    data.loc[data.DOSE_DIRECTIONS=='set()','DOSE_DIRECTIONS'] = "{}"
-#    data.loc[data.DOSE_SIG_TEXT=='set()','DOSE_SIG_TEXT'] = "{}"
-#    data['DOSE_DIRECTIONS'] = data['DOSE_DIRECTIONS'].apply(ast.literal_eval)
-#    data['DOSE_SIG_TEXT'] = data['DOSE_SIG_TEXT'].apply(ast.literal_eval)
-#else:
-#
-
-
-
-
-
-#direction = nlp("on monday, tuesday, wednesday, thursday and friday, tablet, monday through saturday, except tuesday")
-#direction = nlp("take one and a half tablet by mouth twice daily")
-#direction = nlp("1 tab po qbedtime 6 days per week")
-#print('POS:',[token.pos_ for token in direction])
-#print('LEMMA:',[token.lemma_ for token in direction])
-#print(direction.text)
-#print('')
-
-
-
-
-
-
-
-
-#
-#PATH = 'Data/'
-#FILENAME = 'direction_sigline_100K_hard.csv'
-
-#
-## Read File
-#data = pd.read_csv(PATH+FILENAME)
-#
-## Convert Original Directions
-#data['NEW_DIRECTIONS'] = data['DIRECTIONS'].apply(_REWORD)
-#data['NEW_SIG_TEXT'] = data['SIG_TEXT'].apply(_REWORD)
-#data['SAME_DIRECTIONS'] = (data['NEW_DIRECTIONS'] == data['NEW_SIG_TEXT'])
-#
-#
-## Get Frequency
-#data['FREQ_DIRECTIONS'] = data['NEW_DIRECTIONS'].apply(_FREQ)
-#data['FREQ_SIG_TEXT'] = data['NEW_SIG_TEXT'].apply(_FREQ)
-#data['SAME_FREQ'] = (data['FREQ_DIRECTIONS'] == data['FREQ_SIG_TEXT'])
-#
-## Save Results
-##x = data[data['FREQ'] == set()][['NEW_DIRECTIONS','DIRECTIONS','FREQ']]
-#x = data[['NEW_DIRECTIONS','DIRECTIONS','NEW_SIG_TEXT','SIG_TEXT','SAME_DIRECTIONS','FREQ_DIRECTIONS','FREQ_SIG_TEXT','SAME_FREQ']]
-#x.to_csv('results_100K.csv', index=False)
-#
-#y = x.loc[:,'FREQ_DIRECTIONS'].value_counts(normalize=True)
-
-
-#TABLET = ' tablet '
-#MOUTH = ' mouth '
-#MORNING = ' morning '
-#EVENING = ' evening '
-#HOURLY = ' hourly '
-#DAILY = ' daily '
-#WEEKLY = ' weekly '
-#MONTHLY = ' monthly '
-#
-#WORD2NUM = {'one-half': '0.5', 'one and half': '0.5', 'half': '0.5', '1/2': '0.5',  '1/4': '0.25',
-##               'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 'six': '6',
-##               'seven': '7', 'eight': '8', 'nine': '9', 'ten': '10', 'eleven': '11',
-##               'twelve': '12', 'thirteen': '13', 'fourteen': '14', 'fifteen': '15',
-##               'sixteen': '16', 'seventeen': '17', 'eighteen': '18', 'nineteen': '19',
-##               'twenty:': '20', 'thirty': '30', 'forty': '40', 'fifty': '50', 'sixty': '60',
-##               'seventy': '70', 'eighty': '80', 'ninety': '90', 'hundred': '100', 'thousand': '1000',
-#               'once': ' 1 times ', 'twice': ' 2 times ', 'bid': '2 times daily', 'tid': '3 times daily', 'qid': '4 times daily',
-#               ' mg': 'mg', ' milligram': 'mg', ' ml': 'ml', ' milliliter': 'ml',
-#               ',': ' ', '+': ' and ', ' to ': ' or ', '-': ' or ', ' thru ': ' through '}
-#for i in range(1,97):
-#    WORD2NUM['q'+str(i)+'h'] = 'every '+str(i)+' hours'
-#WORD2CHANGE = {}
-#WORD2CHANGE[TABLET] = ['tablet[\w|(|)]*[\s]', 'tab(s)', 'tabs ', 'tab ', 
-#                          'capsule[\w|(|)]*[\s]', 'cap(s)', 'caps ', 'cap ',   
-#                          'puff(s)', 'puffs ', 'puff ',
-#                          'drop(s)', 'drops ', 'drop ',
-#                          'spray(s)', 'sprays ', 'spray ',
-#                          'pill(s)', 'pills ', 'pill ',
-#                          'strip(s)', 'strips ', 'strip ',
-#                          'ring(s)', 'rings ', 'ring ',
-#                          'patch(es)', 'patches ', 'patch ']
-#WORD2CHANGE[MOUTH] = ['by mouth', 'oral ', 'orally', 'p[.]*o[.]*']
-#WORD2CHANGE[MORNING] = ['am']
-#WORD2CHANGE[EVENING] = ['pm', 'night', ' hs'] # hs: at bedtime
-#WORD2CHANGE[HOURLY] = ['a[\s]*hour', 'each[\s]*hour', 'every[\s]*hour', 'per[\s]*hour', 'hour[\w]*', ' qhs']
-#WORD2CHANGE[DAILY] = ['a[\s]*day', 'each[\s]*day', 'every[\s]*day', 'per[\s]*day', 'daily', ' qd']
-#WORD2CHANGE[WEEKLY] = ['a[\s]*week', 'each[\s]*week', 'every[\s]*week', 'per[\s]*week', 'weekly']
-#WORD2CHANGE[MONTHLY] = ['a[\s]*month', 'each[\s]*month', 'every[\s]*month', 'pre[\s]*month', 'monthly']
-#WORD2CHANGE[' monday '] = [' mon ', 'monday[(|)|s]*']
-#WORD2CHANGE[' tuesday '] = [' tues ', 'tuesday[(|)|s]*']
-#WORD2CHANGE[' wednesday '] = [' wed ', 'wednesday[(|)|s]*']
-#WORD2CHANGE[' thursday '] = [' thu ', 'thursday[(|)|s]*']
-#WORD2CHANGE[' friday '] = [' fir ', 'friday[(|)|s]*']
-#WORD2CHANGE[' saturday '] = [' sat ', 'saturday[(|)|s]*']
-#WORD2CHANGE[' sunday '] = [' sun ', 'sunday[(|)|s]*']
-##
-#
-#
-#for k in WORD2CHANGE:
-#    WORD2CHANGE[k] = [re.compile(i) for i in WORD2CHANGE[k]]
-#
-#DOW = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] # Day of week
-#TOD = ['morning', 'breakfast', 'noon', 'lunch', 'afternoon', 'evening', 'dinner', 'supper', 'bedtime'] # time of day
-
-
-
-
-
-#
-#PATH = 'Data/'
-#FILENAME = 'direction_sigline.csv'
-#
-#
-#
-## Read File
-#data = pd.read_csv(PATH+FILENAME)
-## Convert Columns
-#data['HOA_TIMES'] = data['HOA_TIMES'].apply(ast.literal_eval) # Convert HOA_times
-#def _DOW(dow): 
-#    return dow[1:-1].split(',')
-#data['DOW'] = data['DOW'].apply(_DOW) # Convert DOW
-## Add Column
-#data['FREQUENCY'] = data['HOA_TIMES'].apply(len) # Add frequency
-#def _DAYS(dow):
-#    return [i for i, e in enumerate(dow) if e=='true']
-#data['DAYS'] = data['DOW'].apply(_DAYS) # Add days, 0: Sunday, 1: Monday, ..., 6: Saturday
-#
-## Reword a sentence
-#def _REWORD(text):
-#    text = str(text).lower()
-#    while text[-1] == '.':
-#        text = text[:-1] # Remove period at the end
-#    text = text + ' ' # Add a space at the end
-#    for k in WORD2CHANGE: # Change words
-#        for i in WORD2CHANGE[k]: 
-#            text = re.sub(i,k,text)
-#    for k, i in WORD2NUM.items(): # Covert words to numbers
-#        text = text.replace(k,i) 
-#    return " ".join(text.split()) # split words into a list of words
-#data['NEW_DIRECTIONS'] = data['DIRECTIONS'].apply(_REWORD)
-#data['NEW_SIG_TEXT'] = data['SIG_TEXT'].apply(_REWORD)
-## Compare
-#data['SAMETEXT'] = (data['NEW_DIRECTIONS']==data['NEW_SIG_TEXT'])
-#
-#
-## Get Information
-#def _FIND(text,targets):
-#    info = set()
-#    for i in targets:
-#        if len(re.findall(i,text)) > 0:
-#            info.add(i)
-#    return info
-#data['D_TOD'] = data['NEW_DIRECTIONS'].apply(_FIND, args=(TOD,))
-#
-#
-#def _DOW(text, DOW):
-#    info = []
-#    x = re.findall('[\w]+day[\s]*through[\s]*[\w]+day',text)
-#    if len(x) > 0:
-#        info.append(x)
-#    x = re.findall('except*[o|n|a|t|\s]*[\w]+day[a|n|d|\s]*[\w]+day',text)
-#    if len(x) > 0:
-#        info.append(x)
-#    else:
-#        x = re.findall('except*[o|n|a|t|\s]*[\w]+day',text)
-#        if len(x) > 0:
-#            info.append(x)
-#    for d in DOW:
-#        if len(re.findall(d,text)) > 0:
-#            info.append([d])
-#    return info
-#data['D_DOW'] = data['NEW_DIRECTIONS'].apply(_DOW, args=(DOW,))
-#
-#
-## Get Frequency
-#def _FREQ(text):
-#    freq = []
-#    # Get special        
-#    for f in ['day','week']:
-#        for i in ['every', 'pre', 'each']:
-#            for j in ['other','[0-9]+']:
-#                pattern = i+'[\s]*'+j+'[\s]*'+f
-#                x = re.findall(pattern, text)
-#                if len(x) > 0:
-#                    freq.append(x)
-#    x = re.findall('[0-9]+[\s]*days*[\s]*weekly', text)
-#    if len(x) > 0:
-#        freq.append(x)
-#    # Get structured
-#    for f in [HOURLY[1:-1], DAILY[1:-1],WEEKLY[1:-1],MONTHLY[1:-1]]:
-#        if f == HOURLY[1:-1]:
-#            pattern = 'every[\s]*[0-9]+[\s|-|o|r|(|)|0-9]*[\s]*'+f
-#        else:
-#            pattern = '[0-9|.]+[\s]*times*[\s]*'+f
-#        x = re.findall(f, text)
-#        if len(x) > 0:
-#            x = re.findall(pattern, text)
-#            if len(x) > 0:
-#                freq.append(x)
-#            elif f != HOURLY[1:-1] and len(freq)==0:
-#                freq.append([f])
-#    return freq
-#data['FREQ'] = data['NEW_DIRECTIONS'].apply(_FREQ)
-
-
-
-
-
-#x = data[['NEW_DIRECTIONS','DIRECTIONS','FREQ','D_DOW','D_TOD']]
-#
-#
-#
-#
-#
-#
-##simple_data = data[['QUANTITY_PER_DOSE','UNITS','DOSE_QUAN','NEW_DIRECTIONS','DIRECTIONS','NEW_SIG_TEXT','CHECK','SAME']]    
-###simple_data.loc[:,'len'] = simple_data.loc[:,'DOSE_QUAN'].apply(len)
-##x = simple_data[simple_data['CHECK']==False]
-#x.to_csv('results.csv', index=False)
-##
-
-
-
-## Get Quantity per Dose
-#def _DOSE_QUAN(words):
-#    dose_quan = [] 
-#    start_index = 0
-#    for i, e in enumerate(words):
-#        if (e==TABLET[1:-1] or e==MOUTH[1:-1]) and i > 0:
-#            count = 0
-#            for j in range(i-1, start_index-1, -1):
-#                if words[j]=='or':
-#                    if count > 0:
-#                        dose_quan.append(count)
-#                        count = 0
-#                    continue
-#                elif words[j]=='and':
-#                    continue
-#                elif 'ml' in words[j] or 'mg' in words[j]: # '1 5mg tablet'
-#                    continue
-#                elif '(' in words[j] or ')' in words[j]: # '1 (one) tablet by mouth daily'
-#                    continue
-#                else:
-#                    try :  
-#                        float(words[j]) 
-#                        count += float(words[j])
-#                    except:         
-#                        break
-#            if count > 0:
-#                dose_quan.append(count)    
-#            start_index = i        
-#    return dose_quan                            
-#data['DOSE_QUAN'] = data['NEW_DIRECTIONS'].apply(_DOSE_QUAN)       
-#
-#
-#
-## Check Dose Quantity
-#def _CHECK(row):
-#    if row['QUANTITY_PER_DOSE'] in row['DOSE_QUAN']:
-#        return True
-#    else:
-#        return False
-#data['CHECK'] = data.apply(_CHECK, axis=1)
-
-
-
-    
-
-
-# need separate words? is there anything like that? 
-# any rule-based detecting
-# replace letter by something
-# want to learn rule-based algorithm that is currenlty being used for data entry
-
-# remove space between number of mg/ml
+        result = {}
+        for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
+            result[TYPE] = _DETECTION(NEW_DIRECTION, NEW_SIG_TEXT, TYPE, STRENGTH)
+    return result
