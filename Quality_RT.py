@@ -588,10 +588,10 @@ def _DETECTION(DIRECTION, SIG_TEXT, TYPE, STRENGTH):
         NEW_SIG_TEXT = MODIFY(NEW_SIG_TEXT, STRENGTH)
         if TYPE != 'PERIPHERAL': 
             if NEW_DIRECTION != NEW_SIG_TEXT or NEW_DIRECTION == set():
-                result = 1
+                result = {'Escribe':NEW_DIRECTION, 'Sigline':NEW_SIG_TEXT}
         else:
             if NEW_DIRECTION != NEW_SIG_TEXT:
-                result = 1
+                result = {'Escribe':NEW_DIRECTION, 'Sigline':NEW_SIG_TEXT}
     return result
 ###############################################################################
 
@@ -600,13 +600,12 @@ def main(ESCRIBE_DIRECTION, SIG_TEXT, MEDICATION_DESCRIPTION):
     """
     Inputs: escribe text: ESCRIBE_DIRECTION
             sigline text: SIG_TEX
-            medication description: MEDICATION_DESCRIPTON
+            medication description: MEDICATION_DESCRIPTION
     Outputs:
             if there is a frequency change
             if there is a dose change
             if there is a peripheral information change
     """
-    
     # Extract Medication Strength Information
     print('******************************')
     print('Extracing Medication Strength Infromation')  
@@ -621,11 +620,12 @@ def main(ESCRIBE_DIRECTION, SIG_TEXT, MEDICATION_DESCRIPTION):
     ### Step 1. Compare New Direcitons and Sigline Text
     print('******************************')
     print('Step 1')
-    if NEW_DIRECTION == NEW_SIG_TEXT:
-        result = 0
-    else: 
+    if NEW_DIRECTION != NEW_SIG_TEXT:
     ### Step 2 and 3. Direction Change Detection
-        result = {}
+        results = {}
         for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
-            result[TYPE] = _DETECTION(NEW_DIRECTION, NEW_SIG_TEXT, TYPE, STRENGTH)
-    return result
+            result = _DETECTION(NEW_DIRECTION, NEW_SIG_TEXT, TYPE, STRENGTH)
+            if result != 0:
+                results[TYPE] = result
+        if len(results) > 0:
+            return results
