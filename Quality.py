@@ -45,7 +45,7 @@ WORD2CHANGE[' ac hs '] = [' a[.]?c[.]?h[.]?s[.]? ']
 WORD2CHANGE[' orally dissolving tablet '] = ['[\s|.|,|;|-]+odt '] 
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
-WORD2CHANGE[' as needed ' ] = [' p[.]?r[.]?n[.]? ']
+WORD2CHANGE[' as needed ' ] = ['[\s|.|,|;]+p[.]?r[.]?n[\s|.|,|;|:]+']
 WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ']
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
@@ -61,7 +61,7 @@ WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]+) '] # .5 --> 0.5
-WORD2CHANGE[' 0.25 '] = [' 1/4 of a[n]? ', ' 1/4 ', ' one quarter of a[n]? ', ' one quarter ']
+WORD2CHANGE[' 0.25 '] = [' 1/4 of a[n]? ', ' 1/4 ', ' one quarter of a[n]? ', ' one quarter ', ' a quarter ', ' quarter ']
 WORD2CHANGE[' 1.5 '] = [' one and half ', ' one[\s|-]+and[\s|-]+a[\s|-]+half ', ' one and one[\s|-]+half ', ' 1[&|\s]*1/2 ', ' 1 and 0.5 ', ' 1 and 1/2 ', ' 1[\s|-]+1/2 ']
 WORD2CHANGE[' 2.5 '] = [' two and half ', ' two and a half ', ' two and one[\s|-]+half ', ' 2[&|\s]*1/2 ', ' 2 and 0.5 ', ' 2 and 1/2 ', ' 2[\s|-]+1/2 ']
 WORD2CHANGE[' 3.5 '] = [' three and half ', ' three and a half ', ' three and one[\s|-]+half ', ' 3[&|\s]*1/2 ', ' 3 and 0.5 ', ' 3 and 1/2 ', ' 3[\s|-]+1/2 ']
@@ -128,7 +128,7 @@ WORD2CHANGE[' sunday '] = [' [q]?[\s]*sun[\s|.|,|;|-]+', '[q]?[\s]*sunday[[(]?[s
 WORD2CHANGE[' morning '] = [' morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' mornng ']
 WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
                                ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
-                               ' before midday ', ' every[\s]*a[.]?m[.]?[\s|.|,|;|-]+'] # morning(s), qam
+                               ' before midday ', ' every[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' first[\s]*a[.]?m[.]?[\s|.|,|;|-]+'] # morning(s), qam
 WORD2CHANGE[' a.m. '] = ['[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' a..m '] # a.m.
 WORD2CHANGE[' midday '] = [' noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' midday[(]?[s]?[)]?[\s|.|,|;|-]+'] # noon(s), midday(s)
 WORD2CHANGE[' in midday '] = [' q[.]?[\s]*noon[(]?[s]?[)]?[\s|.|,|;|-]+']
@@ -142,13 +142,14 @@ WORD2CHANGE[' in evening '] = [' q[.]?[\s]*evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' 
 WORD2CHANGE[' p.m. '] = ['[\s]*p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
-WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning meal[s]? '] # breakfast(s)
+WORD2CHANGE[' breakfast and dinner '] = [' morning[\s]+and[\s]+evening[\s]*meal[s]?']
+WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]? '] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
 WORD2CHANGE[' with breakfast '] = [' w breakfast ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' with lunch '] = [' w lunch ']
-WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening meal[s]? '] # dinner(s), supper(s)
+WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]? '] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
@@ -834,33 +835,33 @@ if __name__ == "__main__":
 
 
 
-# False Positive Rate
-import os
-import pandas as pd
-import datetime as dt
-PATH = os.path.abspath(os.getcwd())+'/Results/'
-TIME = pd.to_datetime('now').date()
-DAYS = 30
-data_list = []
-nnm_list = []
-print('Date Audit NNME Overlap')
-for i in range(DAYS):
-    TIME = TIME - dt.timedelta(days=1)
-    data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')#[['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
-    data_list.append(data)
-    nnm = pd.read_csv(PATH+'Non_Near_Misses_'+TIME.isoformat()+'.csv')
-    nnm_list.append(nnm)
-    ID1 = data[['ID']].drop_duplicates()
-    ID2 = nnm[['ID']].drop_duplicates()
-    overlap = pd.merge(ID1, ID2, on='ID', how='inner')
-    print(TIME,len(ID1),len(ID2),len(overlap))    
-data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
-nnm = pd.concat(nnm_list, axis=0, ignore_index=True).drop_duplicates()  
-ID1 = data[['ID']].drop_duplicates()
-ID2 = nnm[['ID']].drop_duplicates()
-overlap = pd.merge(ID1, ID2, on='ID', how='inner')
-overlap['FP'] = 'true'
-print('Overall',len(ID1),len(ID2),len(overlap))
+## False Positive Rate
+#import os
+#import pandas as pd
+#import datetime as dt
+#PATH = os.path.abspath(os.getcwd())+'/Results/'
+#TIME = pd.to_datetime('now').date()
+#DAYS = 30
+#data_list = []
+#nnm_list = []
+#print('Date Audit NNME Overlap')
+#for i in range(DAYS):
+#    TIME = TIME - dt.timedelta(days=1)
+#    data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')#[['ID','PRESCRIPTION_ID','ESCRIBE_DIRECTIONS','SIG_TEXT','MEDICATION_DESCRIPTION','LINE_NUMBER','TOTAL_LINE_COUNT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']]
+#    data_list.append(data)
+#    nnm = pd.read_csv(PATH+'Non_Near_Misses_'+TIME.isoformat()+'.csv')
+#    nnm_list.append(nnm)
+#    ID1 = data[['ID']].drop_duplicates()
+#    ID2 = nnm[['ID']].drop_duplicates()
+#    overlap = pd.merge(ID1, ID2, on='ID', how='inner')
+#    print(TIME,len(ID1),len(ID2),len(overlap))    
+#data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()   
+#nnm = pd.concat(nnm_list, axis=0, ignore_index=True).drop_duplicates()  
+#ID1 = data[['ID']].drop_duplicates()
+#ID2 = nnm[['ID']].drop_duplicates()
+#overlap = pd.merge(ID1, ID2, on='ID', how='inner')
+#overlap['FP'] = 'true'
+#print('Overall',len(ID1),len(ID2),len(overlap))
 
 
 #
