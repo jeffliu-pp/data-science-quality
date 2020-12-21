@@ -468,37 +468,43 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
                 afternoon = 1       
         for t in ['evening', 'dinner', 'bedtime']: 
             if t in f:
-                evening = 1        
-        for d in [1,2,3,4,5,6]:
-            for t in [str(d)+' time daily', str(d)+' times daily', str(d)+' time day', str(d)+' times day']:
-                if t == f:
-                    daily = max(d, daily)        
-        for t in ['every 24 hours', 'every 24 hour', 
-                  'every day', 'every 1 day','everyday', 'each day', 'day', 'days', 'daily']:
-            if t in f:
-                daily = max(1, daily)
-        for t in ['every 2 days','every other day']:
-            if t in f:
-                daily = 0
-                info.add('every 2 days')             
+                evening = 1    
         for d in DOW_LIST:
             if d in f:
                 dow[d] = 1
-        for d in [1,2,3,4,5,6,7]:
-            for t in [str(d)+' time weekly', str(d)+' times weekly', str(d)+' day weekly', str(d)+' days weekly',
-                      str(d)+' time week', str(d)+' times week', str(d)+' day week', str(d)+' days week']:
-                if t == f:
-                    weekly = max(d, weekly)
+        for t in ['every 24 hours', 'every 24 hour', 
+                  'every day', 'every 1 day','everyday', 'each day', 'day', 'days', 'daily']:
+            if t in f:
+                daily = max(1, daily) 
         for t in ['every 7 days', 'every 7 day', 
                   'every week', 'every 1 week','everyweek', 'each week', 'week', 'weeks', 'weekly']:
             if t in f:
                 daily = 0
-                weekly = max(1, weekly)
-        for t in ['every 14 days', 'every 2 weeks', 'every other week']:
+                weekly = max(1, weekly)        
+        for d in [1,2,3,4,5,6]:
+            for t in [str(d)+' time daily', str(d)+' times daily', str(d)+' time day', str(d)+' times day']:
+                if t == f:
+                    daily = max(d, daily)        
+        for t in ['every 2 days','every 2 day','every other day']:
+            if t in f:
+                daily = 0
+                info.add('every 2 days')             
+        for d in [1,2,3,4,5,6,7]:
+            for t in [str(d)+' time weekly', str(d)+' times weekly', str(d)+' day weekly', str(d)+' days weekly',
+                      str(d)+' time week', str(d)+' times week', str(d)+' day week', str(d)+' days week']:
+                if t == f:
+                    daily = 0
+                    weekly = max(d, weekly)
+        for t in ['every 14 days', 'every 14 day', 'every 2 weeks', 'every 2 week', 'every other week']:
             if t in f:
                 daily = 0
                 weekly = 0
-                info.add('every 2 weeks')                              
+                info.add('every 2 weeks')        
+        for d in [3,4,5,6,8,9,10]:
+            for t in ['every '+str(d)+' day', 'every '+str(d)+' days']:
+                if t in f:
+                    daily = 0
+                    info.add('every '+str(d)+' days')
     daily = max(daily, morning + noon + max(afternoon,evening)) # use max(afternoon and evening) 12/20/2020
     if daily == 1:
         info.add('1 time daily')
