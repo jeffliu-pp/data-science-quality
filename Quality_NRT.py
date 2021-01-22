@@ -756,7 +756,7 @@ def main():
     TIME = TIME[:13]+TIME[14:16]
     INPUT_RISK = '/Data/predicted_risk_'+TIME+'.csv'
     INPUT_DIRECTION = '/Data/direction_sigline_'+TIME+'.csv'
-    OUTPUT = '/RT_Results/rt_results_'+TIME+'.csv'    
+    OUTPUT = '/NRT_Results/nrt_results_'+TIME+'.csv'    
     ### Load Data
     print('******************************')
     print('Loading Predicted Risk')
@@ -776,7 +776,7 @@ def main():
     data = data.drop_duplicates()  # remove duplicated records   
     data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
     data = data.sort_values(by=['ID','LINE_NUMBER'], ascending=[True,True], na_position='last')
-    data.to_csv(PATH+'/RT_Results/snapshots_'+TIME+'.csv', index=False)
+    data.to_csv(PATH+'/NRT_Results/snapshots_'+TIME+'.csv', index=False)
     data['SIG_TEXT'] = data.groupby(['ID'])['SIG_TEXT'].transform(lambda x: ' '.join(x)) # combine sig_text in multi-line prescriptions, 10/09/2020
     # Extract Medication Strength Information
     print('******************************')
