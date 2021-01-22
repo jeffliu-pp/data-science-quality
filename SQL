@@ -115,3 +115,75 @@ SELECT audit_data.*
     FROM      audit_data 
     LEFT JOIN near_miss_data  ON audit_data.id = near_miss_data.docupack_prescriptions_id
     WHERE near_miss_data.contains_sig_error = True
+
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+-- non near miss
+WITH 
+-------------------
+doc2first_return_time AS (                            --###
+SELECT DOCUMENT_ID, MIN(
+CASE WHEN 
+((MOVED_TO_QUEUE = 'DataEntry') AND (ACTION = 'Transitioned') AND (CURRENT_QUEUE = 'RphCheck'))
+THEN CREATED_AT ELSE TO_TIMESTAMP_TZ('2030-01-01T12:00:00.000+00:00') END)   --###
+FIRST_RETURNED_TO_DE_AT  --###
+FROM source_pillpack_core.docupack_document_histories  --###
+GROUP BY DOCUMENT_ID  --###
+), --###
+--------------------
+audit_data AS(
+-- real-time data
+SELECT    
+          doc_pres.id id,
+          sig.prescription_id,
+          sig.id sig_id,
+          pres.created_at,
+          sig.line_number,
+          sig.text sig_text,
+          esc.message_json:MedicationPrescribed.SigText::string directions,  -- Updated 2020-10-15 due to new doucpack_escribes table
+          esc.message_json:MedicationPrescribed.NDC ndc,                     -- Updated 2020-10-15 due to new doucpack_escribes table
+          sig.quantity_per_dose,
+          sig.units,
+          sig.hoa_times,
+          sig.quantity_per_day,
+          sig.schedule_type,
+          sig.period,
+          sig.dow,
+          doc_pres.med_name medication_description,
+          docs.queue current_queue,
+          ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url
+FROM source_pillpack_core.docupack_prescriptions doc_pres
+LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
+LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
+LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
+LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
+LEFT JOIN doc2first_return_time ON docs.id = doc2first_return_time.DOCUMENT_ID     --###
+WHERE    
+    pres.created_at >= '2020-10-06T08:15:00.000+00:00'   -- query run time minus 24 hours
+    AND pres.created_at < '2020-10-07T08:15:00.000+00:00'    -- query run time
+    AND  ((docs.entered_rph_check_at is null) or 
+          ( (doc2first_return_time.FIRST_RETURNED_TO_DE_AT > '2020-10-07T08:15:00.000+00:00') AND (docs.entered_rph_check_at> '2020-10-07T08:15:00.000+00:00') ) 
+          ) -- query run time  --###
+        AND sig.id IS NOT NULL
+        AND       pres.rx_number IS NOT NULL
+        AND       doc_pres.self_prescribed = false
+        AND       docs.source = 'Escribe'
+        AND       directions is NOT NULL 
+),
+----------------------------------------------------
+near_miss_data AS (SELECT
+    DOCUPACK_ERRORS.PRESCRIPTION_ID AS docupack_prescriptions_id,
+    max(CASE WHEN (
+                    (DOCUPACK_ERRORS.category like '%sig%') AND 
+                       (DOCUPACK_ERRORS.name like '%directions%') 
+                  ) 
+    THEN True ELSE False END) contains_sig_error
+    FROM SOURCE_PILLPACK_CORE.DOCUPACK_ERRORS
+    GROUP BY docupack_prescriptions_id)
+--------------------------------------------------------------    
+
+SELECT audit_data.*
+    FROM      audit_data 
+    WHERE audit_data.id NOT IN (SELECT near_miss_data.docupack_prescriptions_id FROM near_miss_data WHERE near_miss_data.contains_sig_error = True) --- THIS PART IS CHANGED ON 12/17/2020
