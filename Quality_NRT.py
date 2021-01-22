@@ -796,7 +796,9 @@ def main():
     print('Step 1. Input Lines: ', len(data))
     data['SAME_DIRECTIONS'] = (data['NEW_DIRECTIONS'] == data['NEW_SIG_TEXT'])
     data = data[data['SAME_DIRECTIONS']==False]
-    print('Detect ' + str(len(data)) + ' Direction Changes')    
+    print('Detect ' + str(len(data)) + ' Direction Changes') 
+    if len(data) == 0: # if there is no directin change, exit
+        return 0
     ### Step 2 and 3. Direction Change Detection
     results = pd.DataFrame()
     for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
