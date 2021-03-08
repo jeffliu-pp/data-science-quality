@@ -164,7 +164,8 @@ WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+'] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' before bedtime '] = [' before[\s]+bedtime '] 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ', ' pre[-|\s]?meal[s]? ']
 WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ', ' with every meal ', ' with each meal ']
@@ -582,19 +583,26 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
     info = set()
     for p in PERI:
         find = False
-        for i in ['at','as','with']:
-            for j in ['meal','food','snack','milk']:
+        for i in ['at','with']:
+            for j in ['breakfast','lunch','dinner','meal','food','snack','milk']:
                 if i + ' ' + j in p:
-                    if j == 'food':
-                        j = 'meal'
-                    info.add(i+' '+j)
+                    info.add(j)
                     find = True
-                    break
-            if find == True:
-                break
-        for i in PERI_LIST:
-            if i in p:
-                info.add(i)
+                    for k in ['breakfast', 'lunch', 'dinner']:
+                        if i + ' ' + j + ' and ' + k in p:
+                            info.add(k)
+        for i in ['in']:
+            for j in ['morning','midday','afternoon','evening']:
+                if i + ' ' + j in p:
+                    info.add(j)
+                    find = True
+                    for k in ['morning','midday','afternoon','evening']:
+                          if i + ' ' + j + ' and ' + k in p:
+                            info.add(k)                       
+        for i in ['at', 'before']:
+            if i + ' bedtime' == p:
+                info.add('bedtime')
+                find = True
         if find == False:
             info.add(p)
     if 'morning' in info and 'breakfast' in info: # remove words with similar meaning
