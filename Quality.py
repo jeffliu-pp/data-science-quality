@@ -59,7 +59,7 @@ WORD2CHANGE[' up to '] = [' upto ']
 WORD2CHANGE[' - '] = ['-']
 WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' into skin ', ' under the skin ', ' under skin ', ' below the skin ', ' below skin ', 
                                  ' s[/]?q ', ' s[/]?c ', ' subq ', ' subcut ', ' sub q route ', ' subcutan ']
-WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ', ' im ']
+WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ', ' im[\s|.|,|;]+']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]+) '] # .5 --> 0.5
@@ -128,9 +128,11 @@ WORD2CHANGE[' saturday '] = [' [q]?[\s]*sat[\s|.|,|;|-]+', '[q]?[\s]*saturday[(]
 WORD2CHANGE[' sunday '] = [' [q]?[\s]*sun[\s|.|,|;|-]+', '[q]?[\s]*sunday[[(]?[s]?[)]?[\s|.|,|;|-]+'] # sun, sunday(s)
 # Time of Day (TOD)
 WORD2CHANGE[' day in morning '] = [' day a[.]?m[.]? ']
+WORD2CHANGE[' daily in morning '] = [' daily a[.]?m[.]? ']
 WORD2CHANGE[' tablet in morning '] = [' tablet a[.]?m[.]? ']
 WORD2CHANGE[' capsule in morning '] = [' capsule a[.]?m[.]? ']
 WORD2CHANGE[' day in evening '] = [' day p[.]?m[.]? ']
+WORD2CHANGE[' daily in evening '] = [' daily p[.]?m[.]? ']
 WORD2CHANGE[' tablet in evening '] = [' tablet p[.]?m[.]? ']
 WORD2CHANGE[' capsule in evening '] = [' capsule p[.]?m[.]? ']
 WORD2CHANGE[' in moring and in evening '] = [' a[.]?m[.]? and p[.]m[.]? ']
@@ -157,7 +159,7 @@ WORD2CHANGE[' breakfast and dinner '] = [' morning[\s]+and[\s]+evening[\s]*meal[
 WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the morning ', ' a[.]?m[.]? meal[s]? '] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
 WORD2CHANGE[' with breakfast '] = [' w breakfast ']
-WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
+WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+', ' [a][\s]*meal[s]? at lunch[\s]*time[\s|.|,|;]'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' with lunch '] = [' w lunch ']
 WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the eveninng ', ' p[.]?m[.]? meal[s]? '] # dinner(s), supper(s)
@@ -216,7 +218,7 @@ WORD2CHANGE[' monthly '] = [' [o|n|c|e]*[\s]*a[\s]*month ', ' [o|n|c|e]*[\s]*eac
 ###############################################################################
 ### List of Basic Components
 EVERY_LIST = ['a','each','every','per','one']
-AT_LIST = ['at','in','on','before','after','during','with']
+AT_LIST = ['at','in','on','before','after','during','with','without']
 TIME_LIST = ['minute','hour','day','week','month']
 TIMELY_LIST = ['hourly', 'daily', 'weekly', 'monthly']
 DOW_LIST =['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
