@@ -47,7 +47,7 @@ WORD2CHANGE[' orally dissolving tablet '] = ['[\s|.|,|;|-]+odt ']
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
 WORD2CHANGE[' as needed ' ] = ['[\s|.|,|;]+p[.]?r[.]?n[\s|.|,|;|:]+']
-WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ']
+WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ', ' tad ', ' ud ', ' ut ', ' utd ', ' dict '] 
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
 WORD2CHANGE[' before '] = [' prior to ']
@@ -57,8 +57,9 @@ WORD2CHANGE[' without '] = [' w/o ']
 WORD2CHANGE[' with '] = [' w/ ']
 WORD2CHANGE[' up to '] = [' upto ']
 WORD2CHANGE[' - '] = ['-']
-WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' under the skin ']
-WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ']
+WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' into skin ', ' under the skin ', ' under skin ', ' below the skin ', ' below skin ', 
+                                 ' s[/]?q ', ' s[/]?c ', ' subq ', ' subcut ', ' sub q route ', ' subcutan ']
+WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ', ' im ']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]+) '] # .5 --> 0.5
@@ -126,6 +127,13 @@ WORD2CHANGE[' friday '] = [' [q]?[\s]*fri[\s|.|,|;|-]+', '[q]?[\s]*friday[(]?[s]
 WORD2CHANGE[' saturday '] = [' [q]?[\s]*sat[\s|.|,|;|-]+', '[q]?[\s]*saturday[(]?[s]?[)]?[\s|.|,|;|-]+'] # sat, saturday(s)
 WORD2CHANGE[' sunday '] = [' [q]?[\s]*sun[\s|.|,|;|-]+', '[q]?[\s]*sunday[[(]?[s]?[)]?[\s|.|,|;|-]+'] # sun, sunday(s)
 # Time of Day (TOD)
+WORD2CHANGE[' day in morning '] = [' day a[.]?m[.]? ']
+WORD2CHANGE[' tablet in morning '] = [' tablet a[.]?m[.]? ']
+WORD2CHANGE[' capsule in morning '] = [' capsule a[.]?m[.]? ']
+WORD2CHANGE[' day in evening '] = [' day p[.]?m[.]? ']
+WORD2CHANGE[' tablet in evening '] = [' tablet p[.]?m[.]? ']
+WORD2CHANGE[' capsule in evening '] = [' capsule p[.]?m[.]? ']
+WORD2CHANGE[' in moring and in evening '] = [' a[.]?m[.]? and p[.]m[.]? ']
 WORD2CHANGE[' morning '] = [' morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' mornng ']
 WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
                                ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
@@ -146,21 +154,22 @@ WORD2CHANGE[' p.m. '] = ['[\s]+p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
 WORD2CHANGE[' breakfast and dinner '] = [' morning[\s]+and[\s]+evening[\s]*meal[s]?']
-WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]? '] # breakfast(s)
+WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the morning ', ' a[.]?m[.]? meal[s]? '] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
 WORD2CHANGE[' with breakfast '] = [' w breakfast ']
 WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' with lunch '] = [' w lunch ']
-WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]? '] # dinner(s), supper(s)
+WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the eveninng ', ' p[.]?m[.]? meal[s]? '] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
-WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ']
+WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ', ' pre[-|\s]?meal[s]? ']
 WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ', ' with every meal ', ' with each meal ']
 WORD2CHANGE[' with food '] = [' w food ']
+WORD2CHANGE[' after meal '] = [' p[.]?c[.]? ', ' after every meal ', ' after each meal ']
 WORD2CHANGE[' shortness of breath '] = [' s[.]?o[.]?b[.]? ']
 # Time(s)
 WORD2CHANGE[' 1 time '] = [' once ']
@@ -219,8 +228,8 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              'teaspoon', 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
-             'morning', 'midday','afternoon','evening','bedtime',
-             'neuropathy', 'subcutaneous', 'intramuscular', 'stomach']
+             'morning', 'midday','afternoon','evening','bedtime']
+             #'neuropathy', 'subcutaneous', 'intramuscular', 'stomach']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -349,6 +358,8 @@ pp['106'] = [{'LOWER':'as'},{'LEMMA':{'IN':['direct','necessary','need']}}] # as
 pp['107'] = [{'LOWER':'and'}] + pp['106'] # and as needed
 pp['108'] = [{'LOWER':'if'},{'LEMMA':{'IN':['direct','necessary','need']}}] # if needed
 pp['109'] = [{'LOWER':'shortness'},{'LOWER':'of'},{'LOWER':'breath'}]
+pp['110'] = [{'LOWER':'empty'},{'LOWER':'stomach'}] # empty stomach
+pp['111'] = [{'LOWER':{'IN':['neuropathy', 'subcutaneous', 'intramuscular']}}] # route information
 #fp['401'] = [{'LOWER:':'for','POS':'ADP'}] + NUM + TIME # for two weeks, keyword 'for' is not working!!!
 # Add Patterns
 for i in pp:
@@ -572,19 +583,18 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
     for p in PERI:
         find = False
         for i in ['at','as','with']:
-            for j in PERI_LIST:
-                if i + ' ' + j == p:
+            for j in ['meal','food','snack','milk']:
+                if i + ' ' + j in p:
                     if j == 'food':
                         j = 'meal'
-                    info.add(j)
+                    info.add(i+' '+j)
                     find = True
                     break
             if find == True:
                 break
-        for i in ['morning','midday','afternoon','evening']:
+        for i in PERI_LIST:
             if i in p:
                 info.add(i)
-                find = True
         if find == False:
             info.add(p)
     if 'morning' in info and 'breakfast' in info: # remove words with similar meaning
@@ -670,7 +680,8 @@ DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || 
                      sig.schedule_type,
                      sig.period,
                      sig.dow,
-                     doc_pres.med_name medication_description
+                     doc_pres.med_name medication_description,
+                     CURRENT_TIMESTAMP() current_time
                      FROM source_pillpack_core.docupack_prescriptions doc_pres
                      LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
                      LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
@@ -692,7 +703,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'colin.hayward@pillpack.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
@@ -850,8 +861,8 @@ if __name__ == "__main__":
 #import pandas as pd
 #import datetime as dt
 #PATH = os.path.abspath(os.getcwd())+'/Results/'
-#TIME = pd.to_datetime('now').date()
-#DAYS = 30
+#TIME = pd.to_datetime('now').date() - dt.timedelta(days=1)
+#DAYS = 7
 #data_list = []
 #nnm_list = []
 #print('Date Audit NNME Overlap')
@@ -874,7 +885,35 @@ if __name__ == "__main__":
 #print('Overall',len(ID1),len(ID2),len(overlap))
 
 
-#
+# Just create a ML input file
+#import os
+#import pandas as pd
+#import datetime as dt
+#PATH = os.path.abspath(os.getcwd())+'/Results/'
+#TIME = pd.to_datetime('now').date() - dt.timedelta(days=5)
+#DAYS = 47
+#data_list = []
+#nnme_list = []
+#for i in range(DAYS):
+#    TIME = TIME - dt.timedelta(days=1)
+#    data = pd.read_csv(PATH+'Direction_Changes_'+TIME.isoformat()+'.csv')
+#    data_list.append(data)
+#    nnme = pd.read_csv(PATH+'Non_Near_Misses_'+TIME.isoformat()+'.csv')
+#    nnme_list.append(nnme)    
+#data = pd.concat(data_list, axis=0, ignore_index=True).drop_duplicates()  
+#data = data[['CURRENT_QUEUE','TOTAL_LINE_COUNT','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION','ESCRIBE_DIRECTIONS','SIG_TEXT','DOSE_CHANGE','FREQUENCY_CHANGE','PERIPHERAL_CHANGE']].drop_duplicates()
+#nnme = pd.concat(nnme_list, axis=0, ignore_index=True).drop_duplicates() 
+#nnme = nnme[['ID','PRESCRIPTION_ID']].drop_duplicates()
+#nnme['NME'] = 'False'
+#data = pd.merge(data, nnme, on=['ID','PRESCRIPTION_ID'], how='left') 
+#data['NME'] = data[['NME']].fillna('True')
+#KPI = pd.read_csv(PATH+'KPI-2020-1029-1217.csv')
+#KPI = KPI[['ID','PRESCRIPTION_ID']].drop_duplicates()
+#KPI['KPI_NME'] = 'True'
+#data = pd.merge(data, KPI, on=['ID','PRESCRIPTION_ID'], how='left')
+#data['KPI_NME'] = data[['KPI_NME']].fillna('False')
+#data.to_csv(PATH+'Direction_Changes_KPI_2020-1029-1217.csv', index=False)
+
 #import datetime as dt
 #PATH = os.path.abspath(os.getcwd())+'/Results/'
 #TIME = pd.to_datetime('now').date()

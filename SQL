@@ -21,7 +21,8 @@ SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url
           sig.schedule_type,
           sig.period,
           sig.dow,
-          doc_pres.med_name medication_description
+          doc_pres.med_name medication_description,
+	  CURRENT_TIMESTAMP() current_time
 FROM source_pillpack_core.docupack_prescriptions doc_pres
 LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
 LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
@@ -45,9 +46,88 @@ SELECT id,
 FROM analytics_core.drug_dir_pv1_rx_risk
 WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '24.5 hour'
 
+
+
+
 --------------------------------------------------------
 --------------------------------------------------------
--- near miss
+-- new near miss, 02/16/2021
+WITH 
+-------------------
+doc2first_return_time AS (                            --###
+SELECT DOCUMENT_ID, MIN(
+CASE WHEN 
+((MOVED_TO_QUEUE = 'DataEntry') AND (ACTION = 'Transitioned') AND (CURRENT_QUEUE = 'RphCheck'))
+THEN CREATED_AT ELSE TO_TIMESTAMP_TZ('2030-01-01T12:00:00.000+00:00') END)   --###
+FIRST_RETURNED_TO_DE_AT  --###
+FROM source_pillpack_core.docupack_document_histories  --###
+GROUP BY DOCUMENT_ID  --###
+), 
+-------------------
+doc2first_entered_rph_time AS (                            --###
+SELECT DOCUMENT_ID, MIN(
+CASE WHEN 
+((MOVED_TO_QUEUE = 'RphCheck') AND (ACTION = 'Transitioned') AND (CURRENT_QUEUE = 'DataEntry'))
+THEN CREATED_AT ELSE TO_TIMESTAMP_TZ('2030-01-01T12:00:00.000+00:00') END)   --###
+FIRST_ENTERED_RPH_AT  --###
+FROM source_pillpack_core.docupack_document_histories  --###
+GROUP BY DOCUMENT_ID  --###
+),
+--------------------
+document_data AS(
+-- real-time data
+SELECT    
+          doc_pres.id id,
+          sig.prescription_id,
+          pres.created_at,
+          sig.line_number,
+          sig.text sig_text,
+          doc2first_entered_rph_time.FIRST_ENTERED_RPH_AT,
+          doc2first_return_time.FIRST_RETURNED_TO_DE_AT
+          --('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url
+          
+FROM source_pillpack_core.docupack_prescriptions doc_pres
+LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
+LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
+LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
+LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
+LEFT JOIN doc2first_entered_rph_time ON docs.id = doc2first_entered_rph_time.DOCUMENT_ID     --###
+LEFT JOIN doc2first_return_time ON docs.id = doc2first_return_time.DOCUMENT_ID     --###
+WHERE    
+    pres.created_at >= '2021-02-01T00:00:00.000+00:00' 
+    AND pres.created_at <= '2021-02-15T00:00:00.000+00:00'
+        AND sig.id IS NOT NULL
+        AND       pres.rx_number IS NOT NULL
+        AND       doc_pres.self_prescribed = false
+        AND       docs.source = 'Escribe'
+        AND        esc.message_json:MedicationPrescribed.SigText::string is NOT NULL
+AND doc_pres.is_dup = false  -- remove duplicates
+AND pres.discontinued = false -- remove discontinued
+AND docs.queue =  'Archive' -- we think it removes follow ups
+), 
+----------------------------------------------------
+near_miss_data AS (SELECT
+    DOCUPACK_ERRORS.PRESCRIPTION_ID AS docupack_prescriptions_id,
+    max(CASE
+        WHEN docupack_errors.CATEGORY LIKE '%sig line%' AND docupack_errors.NAME LIKE '%directions%' THEN 1
+        ELSE 0
+      END) NME_Status, -- 1 means directions NME 0 means other NME
+      ----------------
+      max (docupack_errors.NAME) max_error_name,
+      min (docupack_errors.NAME) min_error_name
+    FROM SOURCE_PILLPACK_CORE.DOCUPACK_ERRORS
+    GROUP BY docupack_prescriptions_id)
+--------------------------------------------------------------    
+
+SELECT document_data.*, near_miss_data.*
+    FROM      document_data 
+    LEFT JOIN near_miss_data  ON document_data.id = near_miss_data.docupack_prescriptions_id
+--LIMIT 100
+
+
+--------------------------------------------------------
+--------------------------------------------------------
+-- old near miss
 WITH 
 -------------------
 doc2first_return_time AS (                            --###
@@ -115,7 +195,6 @@ SELECT audit_data.*
     FROM      audit_data 
     LEFT JOIN near_miss_data  ON audit_data.id = near_miss_data.docupack_prescriptions_id
     WHERE near_miss_data.contains_sig_error = True
-
 
 
 --------------------------------------------------------
