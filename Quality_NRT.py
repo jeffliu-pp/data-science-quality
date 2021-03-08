@@ -47,7 +47,7 @@ WORD2CHANGE[' orally dissolving tablet '] = ['[\s|.|,|;|-]+odt ']
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
 WORD2CHANGE[' as needed ' ] = ['[\s|.|,|;]+p[.]?r[.]?n[\s|.|,|;|:]+']
-WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ']
+WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ', ' tad ', ' ud ', ' ut ', ' utd ', ' dict '] 
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
 WORD2CHANGE[' before '] = [' prior to ']
@@ -57,8 +57,9 @@ WORD2CHANGE[' without '] = [' w/o ']
 WORD2CHANGE[' with '] = [' w/ ']
 WORD2CHANGE[' up to '] = [' upto ']
 WORD2CHANGE[' - '] = ['-']
-WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' under the skin ']
-WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ']
+WORD2CHANGE[' subcutaneous '] = [' subcutaneously ', ' into the skin ', ' into skin ', ' under the skin ', ' under skin ', ' below the skin ', ' below skin ', 
+                                 ' s[/]?q ', ' s[/]?c ', ' subq ', ' subcut ', ' sub q route ', ' subcutan ']
+WORD2CHANGE[' intramuscular '] = [' intramuscularly ', ' into the muscle ', ' im[\s|.|,|;]+']
 ### Numbers (order matters!)
 WORD2CHANGE[' \\1\\2 '] = [' ([0-9]+)[,]([0-9]{3}[.]?[0-9]*)'] # 1,000 --> 1000
 WORD2CHANGE[' 0\\1 '] = [' ([.][0-9]+) '] # .5 --> 0.5
@@ -126,6 +127,15 @@ WORD2CHANGE[' friday '] = [' [q]?[\s]*fri[\s|.|,|;|-]+', '[q]?[\s]*friday[(]?[s]
 WORD2CHANGE[' saturday '] = [' [q]?[\s]*sat[\s|.|,|;|-]+', '[q]?[\s]*saturday[(]?[s]?[)]?[\s|.|,|;|-]+'] # sat, saturday(s)
 WORD2CHANGE[' sunday '] = [' [q]?[\s]*sun[\s|.|,|;|-]+', '[q]?[\s]*sunday[[(]?[s]?[)]?[\s|.|,|;|-]+'] # sun, sunday(s)
 # Time of Day (TOD)
+WORD2CHANGE[' day in morning '] = [' day a[.]?m[.]? ']
+WORD2CHANGE[' daily in morning '] = [' daily a[.]?m[.]? ']
+WORD2CHANGE[' tablet in morning '] = [' tablet a[.]?m[.]? ']
+WORD2CHANGE[' capsule in morning '] = [' capsule a[.]?m[.]? ']
+WORD2CHANGE[' day in evening '] = [' day p[.]?m[.]? ']
+WORD2CHANGE[' daily in evening '] = [' daily p[.]?m[.]? ']
+WORD2CHANGE[' tablet in evening '] = [' tablet p[.]?m[.]? ']
+WORD2CHANGE[' capsule in evening '] = [' capsule p[.]?m[.]? ']
+WORD2CHANGE[' in moring and in evening '] = [' a[.]?m[.]? and p[.]m[.]? ']
 WORD2CHANGE[' morning '] = [' morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' mornng ']
 WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*a[.]?m[.]?[\s|.|,|;|-]+', 
                                ' in[\s]*a[.]?m[.]?[\s|.|,|;|-]+', ' in[\s]*the[\s]*a[.]?m[.]?[\s|.|,|;|-]+',
@@ -133,7 +143,7 @@ WORD2CHANGE[' in morning '] = [' q[.]?[\s]*morning[(]?[s]?[)]?[\s|.|,|;|-]+', ' 
 WORD2CHANGE['\\1 a.m. '] = ['([0-9]+)[\s]*a[.]?m[.]?[\s|.|,|;|-]+']
 WORD2CHANGE[' a.m. '] = ['[\s]+a[.]?m[.]?[\s|.|,|;|-]+', ' a..m '] # a.m.
 WORD2CHANGE[' midday '] = [' noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' midday[(]?[s]?[)]?[\s|.|,|;|-]+'] # noon(s), midday(s)
-WORD2CHANGE[' in midday '] = [' q[.]?[\s]*noon[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' in midday '] = [' q[.]?[\s]*noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*midday[\s|.|,|;|-]+']
 WORD2CHANGE[' afternoon '] = [' afternoon[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' in afternoon '] = [' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', 
                                  ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s)
@@ -145,21 +155,24 @@ WORD2CHANGE['\\1 p.m. '] = ['([0-9]+)[\s]*p[.]?m[.]?[\s|.|,|;|-]+']
 WORD2CHANGE[' p.m. '] = ['[\s]+p[.]?m[.]?[\s|.|,|;|-]+', ' p..m '] # p.m.
 WORD2CHANGE[' every \\1 \\2 '] = [' [.]?q[.]?[\s]*([0-9]+)[\s]*([a|p]{1}[.]?m[.]?)[\s|.|,|;|-]+'] # q6am    
 # Special Time of Day
-WORD2CHANGE[' breakfast and dinner '] = [' morning[\s]+and[\s]+evening[\s]*meal[s]?']
-WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]? '] # breakfast(s)
+WORD2CHANGE[' breakfast and dinner '] = [' morning[\s]*and[\s]*evening[\s]*meal[s]?']
+WORD2CHANGE[' breakfast '] = [' breakfast[(]?[s]?[)]?[\s|.|,|;|-]+', 'breakfst', 'brakfast', 'bkfst', 'morning[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the morning ', ' a[.]?m[.]? meal[s]? '] # breakfast(s)
 WORD2CHANGE[' before breakfast '] = [' a[.]?c[.]?[\s]*breakfast ', ' a[.]?c[.]?[\s]*bk ']
 WORD2CHANGE[' with breakfast '] = [' w breakfast ']
-WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # lunch(es)
+WORD2CHANGE[' lunch '] = [' lunch[(]?[e|s]*[)]?[\s|.|,|;|-]+', ' [a][\s]*meal[s]? at lunch[\s]*time[\s|.|,|;]'] # lunch(es)
 WORD2CHANGE[' before lunch '] = [' a[.]?c[.]?[\s]+lunch ' ]
 WORD2CHANGE[' with lunch '] = [' w lunch ']
-WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]? '] # dinner(s), supper(s)
+WORD2CHANGE[' dinner '] = [' dinner[(]?[s]?[)]?[\s|.|,|;|-]+', ' supper[(]?[s]?[)]?[\s|.|,|;|-]+', ' dinnertime ', ' evening[\s]*meal[s]?[\s|.|,|;|-]+', ' meal in the eveninng ', ' p[.]?m[.]? meal[s]? '] # dinner(s), supper(s)
 WORD2CHANGE[' before dinner '] = [' a[.]?c[.]?[\s]+dinner ']
 WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+', ' before[\s]+bedtime '] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+'] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
+WORD2CHANGE[' before bedtime '] = [' before[\s]+bedtime '] 
 WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
-WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ']
+WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ', ' pre[-|\s]?meal[s]? ']
 WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ', ' with every meal ', ' with each meal ']
+WORD2CHANGE[' after meal '] = [' p[.]?c[.]? ', ' after every meal ', ' after each meal ']
+WORD2CHANGE[' before food '] = [' before eating food ']
 WORD2CHANGE[' with food '] = [' w food ']
 WORD2CHANGE[' shortness of breath '] = [' s[.]?o[.]?b[.]? ']
 # Time(s)
@@ -206,7 +219,7 @@ WORD2CHANGE[' monthly '] = [' [o|n|c|e]*[\s]*a[\s]*month ', ' [o|n|c|e]*[\s]*eac
 ###############################################################################
 ### List of Basic Components
 EVERY_LIST = ['a','each','every','per','one']
-AT_LIST = ['at','in','on','before','after','during','with']
+AT_LIST = ['at','in','on','before','after','during','with','without']
 TIME_LIST = ['minute','hour','day','week','month']
 TIMELY_LIST = ['hourly', 'daily', 'weekly', 'monthly']
 DOW_LIST =['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -219,8 +232,8 @@ UNIT_LIST = ['tablet', 'capsule', 'pill', 'puff', 'pump', 'drop', 'spray', 'stri
              'teaspoon', 'application',
              'gr', 'mg', 'mcg', 'ml', 'meq']
 PERI_LIST = ['breakfast','lunch','dinner','meal','food','snack','milk',
-             'morning', 'midday','afternoon','evening','bedtime',
-             'neuropathy', 'subcutaneous', 'intramuscular', 'stomach']
+             'morning', 'midday','afternoon','evening','bedtime']
+             #'neuropathy', 'subcutaneous', 'intramuscular', 'stomach']
 ### Generate Patters for Frequency Information
 # Pattern Components
 NUM = [{'POS':'NUM'}]
@@ -349,6 +362,8 @@ pp['106'] = [{'LOWER':'as'},{'LEMMA':{'IN':['direct','necessary','need']}}] # as
 pp['107'] = [{'LOWER':'and'}] + pp['106'] # and as needed
 pp['108'] = [{'LOWER':'if'},{'LEMMA':{'IN':['direct','necessary','need']}}] # if needed
 pp['109'] = [{'LOWER':'shortness'},{'LOWER':'of'},{'LOWER':'breath'}]
+pp['110'] = [{'LOWER':'empty'},{'LOWER':'stomach'}] # empty stomach
+pp['111'] = [{'LOWER':{'IN':['neuropathy', 'subcutaneous', 'intramuscular']}}] # route information
 #fp['401'] = [{'LOWER:':'for','POS':'ADP'}] + NUM + TIME # for two weeks, keyword 'for' is not working!!!
 # Add Patterns
 for i in pp:
@@ -571,19 +586,29 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
     info = set()
     for p in PERI:
         find = False
-        for i in ['at','as','with']:
-            for j in PERI_LIST:
-                if i + ' ' + j == p:
-                    if j == 'food':
-                        j = 'meal'
+        for i in ['at','with']:
+            for j in ['breakfast','lunch','dinner','meal','food','snack','milk']:
+                if i + ' ' + j in p:
                     info.add(j)
                     find = True
-                    break
-            if find == True:
-                break
-        for i in ['morning','midday','afternoon','evening']:
-            if i in p:
-                info.add(i)
+                for k in ['breakfast', 'lunch', 'dinner']:
+                    if j + ' and ' + k in p and 'before' not in p and 'after' not in p:
+                        info.add(j)
+                        info.add(k)
+                        find = True
+        for i in ['in','at']:
+            for j in ['morning','midday','afternoon','evening']:
+                if i + ' ' + j in p:
+                    info.add(j)
+                    find = True
+                for k in ['morning','midday','afternoon','evening']:
+                    if j + ' and ' + k in p:
+                        info.add(j)
+                        info.add(k)      
+                        find = True
+        for i in ['at', 'before']:
+            if i + ' bedtime' == p:
+                info.add('bedtime')
                 find = True
         if find == False:
             info.add(p)
@@ -651,7 +676,7 @@ RISK_QUERY = """SELECT id,
                        medication_description,
                        predicted_risk
                 FROM analytics_core.drug_dir_pv1_rx_risk
-                WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '5.5 minute'"""
+                WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '120.5 minute'"""
 DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
                      docs.queue current_queue,
                      doc_pres.id id,
@@ -670,13 +695,14 @@ DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || 
                      sig.schedule_type,
                      sig.period,
                      sig.dow,
-                     doc_pres.med_name medication_description
+                     doc_pres.med_name medication_description,
+                     CURRENT_TIMESTAMP() current_time
                      FROM source_pillpack_core.docupack_prescriptions doc_pres
                      LEFT JOIN source_pillpack_core.docupack_documents docs ON doc_pres.document_id = docs.id
                      LEFT JOIN source_pillpack_core.prescriptions pres ON doc_pres.app_prescription_id = pres.id
                      LEFT JOIN source_pillpack_core.sig_lines sig ON doc_pres.app_prescription_id = sig.prescription_id
                      LEFT JOIN source_pillpack_core.docupack_escribes esc ON esc.id= doc_pres.INBOUND_ESCRIBE_ID          -- Updated 2020-10-15 due to new doucpack_escribes table
-                     WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '5.5 minute' -- Use for prediction. Intentionally 0.5 minute is added in case the code runs with some delays, we do not want to miss any prescription
+                     WHERE pres.created_at >= CURRENT_TIMESTAMP() - interval '120.5 minute' -- Use for prediction. Intentionally 0.5 minute is added in case the code runs with some delays, we do not want to miss any prescription
                      AND pres.created_at < CURRENT_TIMESTAMP()
                      AND sig.id IS NOT NULL
                      AND pres.rx_number IS NOT NULL
@@ -692,7 +718,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'dane@pillpack.com', 'colin.hayward@pillpack.com']
+EMAIL_LIST = ['jeff.liu@pillpack.com'] #, 'cetinkay@amazon.com', 'mohsen.bayati@pillpack.com', 'ipshita.jain@pillpack.com', 'olivia@pillpack.com', 'colin.hayward@pillpack.com']
 
 class EmailClient:
     def __init__(self, sender="data_science_bot@pillpack.com", region="us-east-1"):
@@ -844,3 +870,53 @@ def main():
 
 if __name__ == "__main__":
     results = main()
+    
+    
+## Post-processing: NRT results
+#import os
+#import pandas as pd
+#PATH = os.path.abspath(os.getcwd())+'/Results/NRT_Results_012203012021/'
+#s_list = [] # snapshot list
+#r_list = [] # result list
+#for d in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15',
+#          '16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']:
+#    for h in ['00','01','02','03','04','05','06','07','08','09',\
+#              '10','11','12','13','14','15','16','17','18','19',\
+#              '20','21','22','23']:
+#        for m in ['00','30']:
+#            for mn in ['01','02']:
+#                try:
+#                    s = pd.read_csv(PATH+'snapshots_2021-'+mn+'-'+d+'T'+h+m+'.csv')
+#                    r = pd.read_csv(PATH+'nrt_results_2021-'+mn+'-'+d+'T'+h+m+'.csv')
+#                except:
+#                    continue
+#                s['TIME'] = '2021-'+mn+'-'+d+' '+h+':'+m+':00'
+#                r['TIME'] = '2021-'+mn+'-'+d+' '+h+':'+m+':00'
+#                s_list.append(s)
+#                r_list.append(r)
+#s = pd.concat(s_list, axis=0, ignore_index=True)[['CURRENT_QUEUE','ID','PRESCRIPTION_ID','LINE_NUMBER','ESCRIBE_DIRECTIONS','SIG_TEXT','TIME']]
+#s = s.sort_values('TIME').drop_duplicates(['CURRENT_QUEUE','ID','PRESCRIPTION_ID','LINE_NUMBER','ESCRIBE_DIRECTIONS'], keep='first')
+#s = s.rename(columns={'TIME':'FIRST_OBSERVED_AT'})
+#r = pd.concat(r_list, axis=0, ignore_index=True).drop_duplicates()#.fillna(0)
+#r = r.sort_values('TIME').drop_duplicates(['CURRENT_QUEUE','ID','PRESCRIPTION_ID','LINE_NUMBER','ESCRIBE_DIRECTIONS'], keep='first')
+#r = r.rename(columns={'TIME':'FIRST_CAPTURED_AT'})
+#x = pd.merge(s,r, on=list(s.columns)[:-1], how='left').drop_duplicates().rename(columns={'SIG_TEXT':'ORIGINAL_SIG_TEXT'})
+## Read NME Results
+#k = pd.read_csv(PATH+'KPI_NRT.csv')#[['ID','PRESCRIPTION_ID','LINE_NUMBER','SIG_TEXT']]
+#k['CREATED_AT'] = k['CREATED_AT'].str[:19]
+#k['FIRST_ENTERED_RPH_AT'] = k['FIRST_ENTERED_RPH_AT'].str[:19]
+#k['FIRST_RETURNED_TO_DE_AT'] = k['FIRST_RETURNED_TO_DE_AT'].str[:19]
+## Merge Results
+#x = pd.merge(x,k,on=['ID','PRESCRIPTION_ID','LINE_NUMBER'], how='left').drop_duplicates().rename(columns={'SIG_TEXT':'NEW_SIG_TEXT'})
+#x['CAPTURED'] = pd.notna(x['FIRST_CAPTURED_AT'])
+#x['EXCLUDE'] = (x['FIRST_OBSERVED_AT'] >= x['FIRST_RETURNED_TO_DE_AT']) | pd.isna(x['CREATED_AT'])
+#x['EXCLUDE'] = x['EXCLUDE'] | (x['CREATED_AT'] > x['FIRST_ENTERED_RPH_AT'])
+#x.to_csv(PATH+'results.csv', index=False)
+#
+#x['NME'] = pd.notna(x['CLASS1_WRONG_DIRECTIONS'])
+#print('Total Cases: ', len(x[['ID','PRESCRIPTION_ID']].drop_duplicates()))
+#print('Total NMEs: ', len(x[x.NME==True][['ID','PRESCRIPTION_ID']].drop_duplicates()))
+#print('Total Direction NMEs: ', len(x[x.CLASS1_WRONG_DIRECTIONS==1][['ID','PRESCRIPTION_ID']].drop_duplicates()))
+#print('Total Captured: ', len(x[x.CAPTURE==True][['ID','PRESCRIPTION_ID']].drop_duplicates()))
+#print('Total NMEs and Captured: ', len(x[(x.NME==True)&(x.CAPTURE==True)][['ID','PRESCRIPTION_ID']].drop_duplicates()))
+#print('Total Direction NMEs and Captured: ', len(x[(x.CLASS1_WRONG_DIRECTIONS==1)&(x.CAPTURE==True)][['ID','PRESCRIPTION_ID']].drop_duplicates()))
