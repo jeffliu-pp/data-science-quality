@@ -588,17 +588,21 @@ def _MODIFY_PERI(ROW, NAME, MEDICATIONS):
                 if i + ' ' + j in p:
                     info.add(j)
                     find = True
-                    for k in ['breakfast', 'lunch', 'dinner']:
-                        if i + ' ' + j + ' and ' + k in p:
-                            info.add(k)
-        for i in ['in']:
+                for k in ['breakfast', 'lunch', 'dinner']:
+                    if j + ' and ' + k in p and 'before' not in p and 'after' not in p:
+                        info.add(j)
+                        info.add(k)
+                        find = True
+        for i in ['in','at']:
             for j in ['morning','midday','afternoon','evening']:
                 if i + ' ' + j in p:
                     info.add(j)
                     find = True
-                    for k in ['morning','midday','afternoon','evening']:
-                          if i + ' ' + j + ' and ' + k in p:
-                            info.add(k)                       
+                for k in ['morning','midday','afternoon','evening']:
+                    if j + ' and ' + k in p:
+                        info.add(j)
+                        info.add(k)      
+                        find = True
         for i in ['at', 'before']:
             if i + ' bedtime' == p:
                 info.add('bedtime')
