@@ -660,7 +660,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
     return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES',\
+                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES', 'BATCH_DATE',\
                  #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
@@ -782,7 +782,7 @@ class EmailClient:
 def main(TIME_INTERVAL):
     # Path and Filename
     PATH = os.path.abspath(os.getcwd())
-    TIME = pd.to_datetime('now').date().isoformat()[:19].replace(':','-').replace('T','-')
+    TIME = pd.to_datetime('now').isoformat()[:19].replace(':','-').replace('T','-')
     OUTPUT = '/MB_Results/results_'+TIME+'.csv'    
     ### Load Data
     print('******************************')
@@ -824,21 +824,22 @@ def main(TIME_INTERVAL):
             results =  result.copy()
         else:
             results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES'], how='outer')
+                                                'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES','BATCH_DATE'], how='outer')
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
-    results = results.sort_values(by=['TOTAL_LINE_COUNT','CURRENT_QUEUE','PREDICTED_RISK'], ascending=[True,True,False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
+    results = results.sort_values(by=['TOTAL_LINE_COUNT','BATCH_DATE','PREDICTED_RISK'], ascending=[True,True,False], na_position='last') # sort by predicated risk from higher to lower and put NAs last
     # Remove Lines with 'pen needle' in ESCRIBE_DIRECTIONS and 'topical' in SIG_TEXT while only missing does information, this is requested by Colin on 09/18/2020 to reduce false positives
     results = results[~((results.ESCRIBE_DIRECTIONS.str.contains(pat='pen needle',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
     results = results[~((results.SIG_TEXT.str.contains(pat='topical',case=False))&(results.DOSE_CHANGE==False)&(results.FREQUENCY_CHANGE.isnull())&(results.PERIPHERAL_CHANGE.isnull()))]
     # Save as a Local File
     results.to_csv(PATH+OUTPUT, index=False)
+    TIME = pd.to_datetime('now').isoformat()[:19].replace('T',' ')
     email = EmailClient()
     email.send_email(EMAIL_LIST,
-       'Direction Changes ' + TIME,
+       'Multi-Batch Direction Changes UTC:' + TIME,
        'Hey team, <br><br>\
-       Attached please find the direction changes on {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+       Attached please find the direction changes on UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
        Key Columns: <br> \
        DOCUPACK_URL: link to document <br> \
        CURRENT_QUEUE: Archive, ExistingPatients <br> \
@@ -849,11 +850,11 @@ def main(TIME_INTERVAL):
        SIG_TEXT <br> \
        LINE_NUMBER: sigline number <br> \
        TOTAL_LINE_COUNT: total number of siglines; if a prescription has more than one siglines, it is likely to be detected since information is saved in different siglines <br> \
-       ESCRIBE_QUANTITY <br> \
        ESCRIBE_NOTES <br> \
-       DOSE_CHANGE: if Ture, there are changes; if False, dose info is missing <br> \
-       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is missing <br> \
-       PERIPHERAL_CHANGE: if Ture, there are changes <br> \
+       BATCH_DATE: estimated ship date <br> \
+       DOSE_CHANGE: if Ture, there are changes; if False, dose info is not identified; if blank, no change detected <br> \
+       FREQUENCY_CHANGE: if Ture, there are changes; if False, frequency info is not identified; if blank, no change detected <br> \
+       PERIPHERAL_CHANGE: if Ture, there are changes; if blank, no change detected <br> \
        PREDICTED_RISK: risk of direction changes from ML model, high value means high risk <br><br>\
        Best, <br>data_science_bot'.format(TIME),
        PATH+OUTPUT)
