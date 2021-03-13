@@ -860,5 +860,5 @@ def main(TIME_INTERVAL):
     return results
 
 if __name__ == "__main__":
-    TIME_INTERVAL = str(sys.argv[1])
+    TIME_INTERVAL = str(' '.join(sys.argv[1:]))
     results = main(TIME_INTERVAL)
