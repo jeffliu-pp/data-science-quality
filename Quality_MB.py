@@ -769,7 +769,7 @@ class EmailClient:
         if attachment:
             # attachment
             part = MIMEApplication(open(attachment, 'rb').read())
-            part.add_header('Content-Disposition', 'attachment', filename='Direction_Changes_'+pd.to_datetime('now').date().isoformat()+'.csv')
+            part.add_header('Content-Disposition', 'attachment', filename='MultiBatch_Direction_Changes_UTC_'+pd.to_datetime('now').isoformat()[:16].replace(':','-').replace('T','-')+'.csv')
             msg.attach(part)
         response = self.client.send_raw_email(
             Source=msg['From'],
@@ -839,7 +839,7 @@ def main(TIME_INTERVAL):
     email.send_email(EMAIL_LIST,
        'Multi-Batch Direction Changes UTC:' + TIME,
        'Hey team, <br><br>\
-       Attached please find the direction changes on UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+       Attached please find multi-batch direction changes at UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
        Key Columns: <br> \
        DOCUPACK_URL: link to document <br> \
        CURRENT_QUEUE: Archive, ExistingPatients <br> \
