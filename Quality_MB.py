@@ -653,6 +653,10 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     DATA[TYPE+'_DIRECTIONS'] = DATA['NEW_DIRECTIONS'].apply(_EXTRACT, matcher=MATCHER)
     DATA[TYPE+'_SIG_TEXT'] = DATA['NEW_SIG_TEXT'].apply(_EXTRACT, matcher=MATCHER)
     DATA = DATA.loc[(DATA[TYPE+'_DIRECTIONS'] != DATA[TYPE+'_SIG_TEXT'])|(DATA[TYPE+'_DIRECTIONS']==set())].copy()
+    if len(DATA) == 0:
+        return pd.DataFrame(columns=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
+                                     'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES', 'BATCH_DATE',\
+                                     TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE'])
     # Step 3. 
     print('Step 3. Input Lines: ', len(DATA))
     DATA['NEW_'+TYPE+'_DIRECTIONS'] = DATA.apply(MODIFY, axis=1, NAME=TYPE+'_DIRECTIONS', MEDICATIONS=MEDICATIONS)
@@ -667,7 +671,6 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     # Return
     return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
                  'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES', 'BATCH_DATE',\
-                 #'NEW_DIRECTIONS', 'NEW_SIG_TEXT', TYPE+'_DIRECTIONS', TYPE+'_SIG_TEXT',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
@@ -797,6 +800,15 @@ def main(TIME_INTERVAL):
     risk.columns = risk.columns.str.upper()
     print('Running SQL to pull directions from Snowflake...') 
     data = _SQL(_DIRECTION_QUERY(TIME_INTERVAL))                         
+    ### Handeling Empty Data
+    if len(data) == 0:
+        email = EmailClient()
+        email.send_email(EMAIL_LIST,
+           'Multi-Batch Direction Changes UTC:' + TIME,
+           'Hey team, <br><br>\
+           There is no direction change detected at UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+           Best, <br>data_science_bot'.format(TIME))
+        return 0    
     data.columns = data.columns.str.upper()
     data = data.drop_duplicates()  # remove duplicated records   
     data['TOTAL_LINE_COUNT'] = data.groupby('ID')['LINE_NUMBER'].transform('count') # total sigline count
@@ -821,7 +833,16 @@ def main(TIME_INTERVAL):
     print('Step 1. Input Lines: ', len(data))
     data['SAME_DIRECTIONS'] = (data['NEW_DIRECTIONS'] == data['NEW_SIG_TEXT'])
     data = data[data['SAME_DIRECTIONS']==False]
-    print('Detect ' + str(len(data)) + ' Direction Changes')    
+    print('Detect ' + str(len(data)) + ' Direction Changes')
+    ### Handeling Empty Data
+    if len(data) == 0:
+        email = EmailClient()
+        email.send_email(EMAIL_LIST,
+           'Multi-Batch Direction Changes UTC:' + TIME,
+           'Hey team, <br><br>\
+           There is no direction change detected at UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+           Best, <br>data_science_bot'.format(TIME))
+        return 0    
     ### Step 2 and 3. Direction Change Detection
     results = pd.DataFrame()
     for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
