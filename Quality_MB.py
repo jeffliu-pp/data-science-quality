@@ -48,7 +48,7 @@ WORD2CHANGE[' \\1 ac '] = [' ([b|t|q]{1}id)ac ', ' (qd)ac ', ' (qday)ac ' ]
 WORD2CHANGE[' orally dissolving tablet '] = ['[\s|.|,|;|-]+odt '] 
 WORD2CHANGE[' \\1 by mouth '] = [' ([0-9]+)p[.]?o[.]? ']
 WORD2CHANGE[' \\1 daily '] = [' ([0-9]+)q[.]?d[.]? ']
-WORD2CHANGE[' as needed ' ] = ['[\s|.|,|;]+p[.]?r[.]?n[\s|.|,|;|:]+', ' s needed ']
+WORD2CHANGE[' as needed ' ] = ['[\s|.|,|;]+p[.]?r[.]?n[\s|.|,|;|:]+', ' s needed ', '[.|,|;]+as needed ']
 WORD2CHANGE[' as directed ' ] = [' as[\s]*dir ', ' tad ', ' ud ', ' ut ', ' utd ', ' dict ', ' uad ', ' as instructed '] 
 WORD2CHANGE[' by mouth '] = [' [b]?[y]?[\s]*oral[\s]*route ', ' oral ', ' orally ', ' p[.]?o[.]? '] # oral, orally, p.o.
 WORD2CHANGE[' and '] = [' & ']
@@ -73,6 +73,7 @@ WORD2CHANGE[' 4.5 '] = [' four and half ', ' four and a half ', ' four and one[\
 WORD2CHANGE[' 5.5 '] = [' five and half ', ' five and a half ', ' five and one[\s|-]+half ', ' 5[&|\s]*1/2 ', ' 5 and 0.5 ', ' 5 and 1/2 ', ' 5[\s|-]+1/2 ']
 WORD2CHANGE[' 0.5 '] = [' one[\s]*-[\s]*half ', ' one half ', ' a half ', ' half a ', ' half of a ', ' 0.5/half ', ' half ', ' 1/2 ']
 WORD2CHANGE[' 24 '] = [' twenty[\s|-]+four ']
+WORD2CHANGE[' 24=8 '] = [' twenty[\s|-]+eight ']
 WORD2CHANGE[' 36 '] = [' thirty[\s|-]+six ']
 WORD2CHANGE[' 48 '] = [' forty[\s|-]+eight ']
 WORD2CHANGE[' 1 '] = [' one ', ' 1 whole ', ' 0ne ']
@@ -94,9 +95,9 @@ WORD2CHANGE[' \\1 to \\2 '] = ['([0-9]+[.]?[0-9]*)[\s]*-[\s]*([0-9]+[.]?[0-9]*)'
 ### Medication Units
 WORD2CHANGE[' \\1 tablet '] = ['([0-9]+)t ']
 WORD2CHANGE[' tablet '] = ['[\-]?[\s]*tablet[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'tab[(]?[s]?[)]?[\s|.|,|;|-]+', ' t[(]?[s]?[)]? ', ' tb[(]?[s]?[)]? ', 
-                           ' table[s]? ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' tablelet ', ' tablyes ', ' tabletby '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
+                           ' table[s]? ', 'tabet ', ' tabl[.]? ', 'tabelet ', ' tabletd ', ' tbt ', ' tablelet ', ' tablyes ', ' tabletby ', ' tableta ', ' of[\s]+tablet '] # tablet, tablets, tablet(s), tab, tabs, tab(s)
 WORD2CHANGE[' capsule '] = ['[\-]?[\s]*capsule[(]?[s]?[)]?[\s|.|,|;|-|/]+', 'cap[(]?[s]?[)]?[\s|.|,|;|-]+', ' c[(]?[s]?[)]? ', 
-                            ' capsul ', ' cpaules ', ' capsulse ', ' delayed release capsule[(]?[s]?[)]? '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
+                            ' capsul ', ' cpaules ', ' capsulse ', ' delayed release capsule[(]?[s]?[)]? ', ' of[\s]+capsule '] # capsule, capsules, capsule(s), cap, caps, cap(s) 
 WORD2CHANGE[' pill '] = ['pill[(]?[s]?[)]?[\s|.|,|;|-]+'] # pill, pills, pill(s)    
 WORD2CHANGE[' puff '] = ['puff[(]?[s]?[)]?[\s|.|,|;|-]+', ' pufs ',
                          'inhalation[(]?[s]?[)]?[\s|.|,|;|-]+', 'inhaler[(]?[s]?[)]? ', 'inh[l]?[(]?[s]?[)]?[\s|.|,|;|-]+', ' aerosol[(]?[s]?[)]? '] # puff, puffs, puff(s)   
@@ -106,7 +107,7 @@ WORD2CHANGE[' spray '] = ['spray[(]?[s]?[)]?[\s|.|,|;|-]+', 'spr[(]?[s]?[)]?[\s|
 WORD2CHANGE[' strip '] = ['strip[(]?[s]?[)]?[\s|.|,|;|-]+'] # strip(s)
 WORD2CHANGE[' scoop '] = ['scoop[(]?[s]?[)]?[\s|.|,|;|-]+'] # scoop(s)
 WORD2CHANGE[' syringe '] = ['syringe[(]?[s]?[)]?[\s|.|,|;|-]+'] # syringe(s)
-WORD2CHANGE[' ring '] = ['ring[(]?[s]?[)]?[\s|.|,|;|-]+', 'vaginal ring[(]?[s]?[)]?[\s|.|,|;|-]+'] # ring(s)      
+WORD2CHANGE[' ring '] = ['vaginal ring[(]?[s]?[)]?[\s|.|,|;|-]+', 'vag ring[(]?[s]?[)]?[\s|.|,|;|-]+', 'ring[(]?[s]?[)]?[\s|.|,|;|-]+'] # ring(s)      
 WORD2CHANGE[' patch '] = ['patch[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # patch(es)   
 WORD2CHANGE[' packet '] = ['packet[(]?[e|s]*[)]?[\s|.|,|;|-]+'] # packet(s)
 WORD2CHANGE[' \\1 unit '] = ['([0-9]+)u[n]? ']
@@ -118,7 +119,7 @@ WORD2CHANGE[' application '] = ['appliciation[(]?[s]?[)]?[\s|.|,|;|-]+', 'applic
 WORD2CHANGE[' ampule '] = ['amp[o]?ule[(]?[s]?[)]?[\s|.|,|;|-]+', 'ampul[(]?[s]?[)]?[\s|.|,|;|-]+'] # ampule(s), ampoule(s), ampul(s) 
 WORD2CHANGE[' piece '] = ['piece[(]?[s]?[)]?[\s|.|,|;|-]+']
 WORD2CHANGE[' needle '] = ['needle[(]?[s]?[)]?[\s|.|,|;|-]+']
-WORD2CHANGE[' suppository '] = ['suppository[\s|.|,|;|-]+', 'suppositories[\s|.|,|;|-]+']
+WORD2CHANGE[' suppository '] = ['suppository[\s|.|,|;|-]+', 'suppositories[\s|.|,|;|-]+', ' supp[(]?s[)]? ']
 ### Time-Related Words
 # Day of Week (DOW)
 WORD2CHANGE[' monday '] = [' [q]?[\s]*mon[\s|.|,|;|-]+', '[q]?[\s]*monday[(]?[s]?[)]?[\s|.|,|;|-]+'] # mon, monday(s), qmonday(s)
@@ -148,7 +149,7 @@ WORD2CHANGE['\\1 a.m. '] = ['([0-9]+)[\s]*a[.]?m[.]?[\s|.|,|;|-]+']
 WORD2CHANGE[' a.m. '] = ['[\s]+a[.]?m[.]?[\s|.|,|;|-]+', ' a..m[\s|.|,|;|-]+'] # a.m.
 WORD2CHANGE[' midday '] = [' noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' midday[(]?[s]?[)]?[\s|.|,|;|-]+'] # noon(s), midday(s)
 WORD2CHANGE[' in midday '] = [' q[.]?[\s]*noon[(]?[s]?[)]?[\s|.|,|;|-]+', ' q[.]?[\s]*midday[\s|.|,|;|-]+']
-WORD2CHANGE[' afternoon '] = [' afternoon[(]?[s]?[)]?[\s|.|,|;|-]+']
+WORD2CHANGE[' afternoon '] = [' afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', ' afernoon ']
 WORD2CHANGE[' in afternoon '] = [' q[.]?[\s]*afternoon[(]?[s]?[)]?[\s|.|,|;|-]+', 
                                  ' after school[\s|.|,|;|-]+', ' mid afternoon[\s|.|,|;|-]+'] # afternoon(s)
 WORD2CHANGE[' evening '] = [' evening[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[(]?[s]?[)]?[\s|.|,|;|-]+', ' night[t]?ime[\s|.|,|;|-]+', ' midnight[\s|.|,|;|-]+']
@@ -173,7 +174,7 @@ WORD2CHANGE[' with dinner '] = [' w dinner ']
 WORD2CHANGE[' bedtime '] = [' bed[(]?[s]?[)]?[\s|.|,|;|-]+', ' bedtime[\w]*[\s|.|,|;|-]+', ' bed[\s]*time[(]?[s]?[)]?[\s|.|,|;|-]+', ' beditime ']
 WORD2CHANGE[' at bedtime '] = [' at h[.]?s[.]?[\s|,|;|-]+', ' [.]?q[.]?[-|\s]*h[.]?s[.]?[\s|,|;|-]+', ' h[.]?s[.]?[\s|,|;|-]+', ' q[\s]*bedtime[\s|.|,|;|-]+'] # bed(s), bedtime(s), bed time(s), h.s., qbedtime 
 WORD2CHANGE[' before bedtime '] = [' before[\s]+bedtime '] 
-WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+'] # meal(s)
+WORD2CHANGE[' meal '] = [' [a]?[\s]*meal[(]?[s]*[)]?[\s|.|,|;|-]+', ' mieal '] # meal(s)
 WORD2CHANGE[' before meal '] = [' q[.]?a[.]?c[.]? ', ' a[.]?c[.]? ', ' before every meal ', ' before each meal ', ' pre[-|\s]?meal[s]? ']
 WORD2CHANGE[' with meal '] = [' w meal ', ' withmeal[s]? ', ' with every meal ', ' with each meal ']
 WORD2CHANGE[' after meal '] = [' p[.]?c[.]? ', ' after every meal ', ' after each meal ']
@@ -194,7 +195,7 @@ WORD2CHANGE[' \\1 minute '] = [' ([0-9]+)min[(]?[s]?[)]?[\s|.|,|;]+', ' ([0-9]+)
 WORD2CHANGE[' minute '] = [' minute[(]?[s]?[)]?[\s|.|,|;]+', ' min[(]?[s]?[)]?[\s|.|,|;]+']
 WORD2CHANGE[' hour '] = ['hour[.|,|;]+', 'hr[\s|.|,|;]+', 'hrs[\s|.|,|;]+', 'hurs[\s|.|,|;]+']
 WORD2CHANGE['day '] = ['day[.|,|;]+']
-WORD2CHANGE[' week '] = ['week[.|,|;]+', 'wk[\s|.|,|;]+', 'wks[\s|.|,|;]+ ']
+WORD2CHANGE[' week '] = ['week[.|,|;]+', 'wk[\s|.|,|;|(]+', 'wks[\s|.|,|;|(]+ ']
 WORD2CHANGE[' month '] = ['month[.|,|;|-]+']
 WORD2CHANGE[' hourly '] = [' a[\s]*hour ', ' each[\s]*hour[\s|.|,|;]+', ' every[\s]*hour[\s|.|,|;]+', ' per[\s]*hour[\s|.|,|;]+', 
                            '/[\s]*hour[\s|.|,|;]+', '/[\s]*hr[\s|.|,|;|-]+', '/[\s]*h[\s|.|,|;]+']
@@ -436,7 +437,7 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
     for f in FREQ:
         # hours
         for t in ['hour', 'hours']: # every 4 hours
-            if t in f:
+            if t in f and '24' not in f:
                 info.add(f)
         # time
         times = re.findall('[0-9]?[0-9][:][0-9][0-9][\s]+[a|p]?.m.', f) # timestamps, 7:00 p.m., 10/09/2020
@@ -493,8 +494,8 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
             if d in f:
                 dow[d] = 1
         for t in ['every 24 hours', 'every 24 hour', 
-                  'every day', 'every 1 day','everyday', 'each day', 'day', 'days', 'daily']:
-            if t in f:
+                  'every day', 'every 1 day','everyday', 'each day', ' day', ' days', 'daily']:
+            if t in f and 'weekly' not in f and 'time' not in f:
                 daily = max(1, daily) 
         for t in ['every 7 days', 'every 7 day', 
                   'every week', 'every 1 week','everyweek', 'each week', 'week', 'weeks', 'weekly']:
@@ -520,6 +521,11 @@ def _MODIFY_FREQ(ROW, NAME, MEDICATIONS):
                 daily = 0
                 weekly = 0
                 info.add('every 2 weeks')        
+        for t in ['every 28 days', 'every 28 day', 'every 4 weeks', 'every 4 week']:
+            if t in f:
+                daily = 0
+                weekly = 0
+                info.add('every 4 weeks') 
         for d in [3,4,5,6,8,9,10]:
             for t in ['every '+str(d)+' day', 'every '+str(d)+' days']:
                 if t in f:
@@ -820,11 +826,20 @@ def main(TIME_INTERVAL):
     results = pd.DataFrame()
     for TYPE in ['DOSE','FREQUENCY','PERIPHERAL']: 
         result = _DETECTION(data.loc[:], TYPE, medications).copy()
-        if len(results) == 0:
+        if TYPE == 'DOSE':
             results =  result.copy()
         else:
             results = results.merge(result, on=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
                                                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES','BATCH_DATE'], how='outer')
+    ### Handeling Empty Results
+    if len(results) == 0:
+        email = EmailClient()
+        email.send_email(EMAIL_LIST,
+           'Multi-Batch Direction Changes UTC:' + TIME,
+           'Hey team, <br><br>\
+           There is no direction change detected at UTC {0}. If you have any questions please contact Jeff Liu: jeff.liu@pillpack.com. <br><br> \
+           Best, <br>data_science_bot'.format(TIME))
+        return 0
     ### Save and Return
     results = results.merge(medications, on=['MEDICATION_DESCRIPTION'], how='left')
     results = results.merge(risk, on=['ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION'], how='left')
