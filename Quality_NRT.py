@@ -9,6 +9,7 @@ Quality Projects: Code for High-Frequency Auditing
 """
 
 import os
+import sys
 import pandas as pd
 #import numpy as np
 #import ast # use to split string to list
@@ -654,7 +655,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     DATA = DATA.loc[(DATA[TYPE+'_DIRECTIONS'] != DATA[TYPE+'_SIG_TEXT'])|(DATA[TYPE+'_DIRECTIONS']==set())].copy()
     if len(DATA) == 0:
         return pd.DataFrame(columns=['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                                     'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES', 'BATCH_DATE',\
+                                     'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES',\
                                      TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE'])
     # Step 3. 
     print('Step 3. Input Lines: ', len(DATA))
@@ -669,7 +670,7 @@ def _DETECTION(DATA, TYPE, MEDICATIONS):
     print('Detect ' + str(len(DATA)) + ' ' + TYPE + ' Changes')
     # Return
     return DATA[['DOCUPACK_URL','CURRENT_QUEUE','ID','PRESCRIPTION_ID','MEDICATION_DESCRIPTION',\
-                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES', 'BATCH_DATE',\
+                 'ESCRIBE_DIRECTIONS','SIG_TEXT','LINE_NUMBER','TOTAL_LINE_COUNT','ESCRIBE_QUANTITY','ESCRIBE_NOTES',\
                 TYPE+'_DIRECTIONS',TYPE+'_SIG_TEXT','NEW_'+TYPE+'_DIRECTIONS','NEW_'+TYPE+'_SIG_TEXT',TYPE+'_CHANGE']]
 ###############################################################################
 
@@ -691,7 +692,7 @@ def _RISK_QUERY(TIME_INTERVAL):
                        predicted_risk
                 FROM analytics_core.drug_dir_pv1_rx_risk
                 WHERE sf_updated_at >= CURRENT_TIMESTAMP() - interval '{0}'""".format(TIME_INTERVAL)
-     return RISK_QUERY           
+    return RISK_QUERY           
                 
 def _DIRECTION_QUERY(TIME_INTERVAL):
     DIRECTION_QUERY = """SELECT  ('https://admin.pillpack.com/admin/docupack/#/' || docs.id) docupack_url,
